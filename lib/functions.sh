@@ -1,25 +1,110 @@
-# Define the function with named parameters
-app_call_api() {
-    declare -A params=() # Initialize an associative array
-    while [[ "$#" -gt 0 ]]; do
-        case $1 in
-            -u|--url) params[url]="$2"; shift ;;
-            -i|--id) params[id]="$2"; shift ;;
-            -p|--profile) params[profile]="$2"; shift ;;
-            *) echo "Unknown parameter passed: $1"; exit 1 ;;
-        esac
+fetch_user_params() {
+    user_params=()
+    while [[ "$1" != "" ]]; do
+        if [[ "$1" == --* ]]; then
+            key="${1:2}"
+            shift
+            user_params["$key"]=$1
+        else
+            # Continue silently for unknown parameters
+            shift
+            continue
+        fi
         shift
     done
-
-    # Access the named parameters
-    local url="${params[url]}"
-    local id="${params[id]}"
-    local profile="${params[profile]}"
-
-    echo "Calling API at $url with ID $id"
-    # Check if profile is set and display it
-    if [ -n "$profile" ]; then
-        echo "Using profile $profile"
-    fi
-    # Your API call logic here
 }
+
+library_method1() {
+    declare -A required_params=( ["i"]="id" ["j"]="json" ) # map of required parameters
+    declare -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
+
+    fetch_user_params "$@"
+    # filter_params required_params optional_params user_params
+    # business_logic1 filtered_params
+
+    print_keys_and_input required_params user_params
+}
+
+print_keys_and_input() {
+    declare -n array1=$1
+    declare -n inputs=$2
+
+
+    echo "Array 1:"
+    for key in "${!array1[@]}"; do
+        echo "$key: ${array1[$key]}"
+    done
+
+    echo "Inputs:"
+    for item in "${inputs[@]}"; do
+        echo "An item: $item"
+    done
+}
+
+print_keys_and_values() {
+    declare -n array1=$1
+    declare -n array2=$2
+    declare -A params=()
+
+    echo "Array 1:"
+    for key in "${!array1[@]}"; do
+        echo "$key: ${array1[$key]}"
+    done
+
+    echo "Array 2:"
+    for key in "${!array2[@]}"; do
+        echo "$key: ${array2[$key]}"
+    done
+}
+
+# library_method2() {
+#     declare -A required_params=( ["n"]="name" ["j"]="json" ) # map of required parameters
+#     declare -A optional_params=( ["p"]="profile" ["a"]="alternate-option" ) # map of optional parameters
+
+#     fetch_user_params "$@"
+#     filter_params required_params optional_params user_params
+#     business_logic1 filtered_params
+# }
+
+
+# do_something() {
+#     declare -A required_params=( ["u"]="url" ["i"]="id" ["j"]="json" ) # map of required parameters
+#     declare -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
+
+#     declare -A resulted_params=()
+#     fetch_user_params "$@" resulted_params
+#     filter_params required_params optional_params user_params
+
+#     echo "Required params:"
+#     for key in "${!required_params[@]}"; do
+#         echo "$key: ${filtered_params[${required_params[$key]}]}"
+#     done
+
+#     echo "Optional params:"
+#     for key in "${!optional_params[@]}"; do
+#         echo "$key: ${filtered_params[${optional_params[$key]}]}"
+#     done
+# }
+
+# filter_params() {
+#     declare -n required_params=$1
+#     declare -n optional_params=$2
+#     declare -A user_params=$3
+#     filtered_params=()
+
+#     # Check for missing required params
+#     for key in "${!required_params[@]}"; do
+#         if [[ -z "${user_params[${required_params[$key]}]}" ]]; then
+#             echo "Error: Missing required parameter '${required_params[$key]}'"
+#             # exit 1
+#         fi
+#         filtered_params["${required_params[$key]}"]="${user_params[${required_params[$key]}]}"
+#     done
+
+#     # Add optional params if they exist
+#     for key in "${!optional_params[@]}"; do
+#         if [[ -n "${user_params[${optional_params[$key]}]}" ]]; then
+#             filtered_params["${optional_params[$key]}"]="${user_params[${optional_params[$key]}]}"
+#         fi
+#     done
+# }
