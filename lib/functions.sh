@@ -19,20 +19,23 @@ library_method1() {
     declare -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
 
     fetch_user_params "$@"
-    # filter_params required_params optional_params user_params
-    # business_logic1 filtered_params
 
-    print_keys_and_input required_params user_params
+    print_keys_and_values_and_inputs required_params optional_params user_params
 }
 
-print_keys_and_input() {
+print_keys_and_values_and_inputs() {
     declare -n array1=$1
-    declare -n inputs=$2
-
+    declare -n array2=$2
+    declare -n inputs=$3
 
     echo "Array 1:"
     for key in "${!array1[@]}"; do
         echo "$key: ${array1[$key]}"
+    done
+
+    echo "Array 2:"
+    for key in "${!array2[@]}"; do
+        echo "$key: ${array2[$key]}"
     done
 
     echo "Inputs:"
