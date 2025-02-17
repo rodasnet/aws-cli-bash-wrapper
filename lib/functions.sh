@@ -1,4 +1,4 @@
-fetch_user_params() {
+fetch_user_params_v0() {
     user_params=()
     while [[ "$1" != "" ]]; do
         if [[ "$1" == --* ]]; then
