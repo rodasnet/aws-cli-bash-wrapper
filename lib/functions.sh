@@ -1,10 +1,10 @@
-fetch_user_params_v0() {
-    user_params=()
-    while [[ "$1" != "" ]]; do
-        if [[ "$1" == --* ]]; then
-            key="${1:2}"
+fetch_user_params() {
+    declare -n params=$1
+    while [[ "$2" != "" ]]; do
+        if [[ "$2" == --* ]]; then
+            key="${2:2}"
             shift
-            user_params["$key"]=$1
+            params["$key"]=$2
         else
             # Continue silently for unknown parameters
             shift
@@ -17,8 +17,9 @@ fetch_user_params_v0() {
 library_method1() {
     declare -A required_params=( ["i"]="id" ["j"]="json" ) # map of required parameters
     declare -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
+    declare -A user_params
 
-    fetch_user_params "$@"
+    fetch_user_params user_params "$@"
 
     print_keys_and_values_and_inputs required_params optional_params user_params
 }
@@ -39,15 +40,14 @@ print_keys_and_values_and_inputs() {
     done
 
     echo "Inputs:"
-    for item in "${inputs[@]}"; do
-        echo "An item: $item"
+    for key in "${!inputs[@]}"; do
+        echo "$key: ${inputs[$key]}"
     done
 }
 
 print_keys_and_values() {
     declare -n array1=$1
     declare -n array2=$2
-    declare -A params=()
 
     echo "Array 1:"
     for key in "${!array1[@]}"; do
