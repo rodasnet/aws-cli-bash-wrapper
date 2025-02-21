@@ -1,5 +1,15 @@
 # Delete IAM Roles
 
+## Using CLI Wrapper
+
+### Delete Instance Profile
+
+```
+source ./lib/load.sh
+
+delete_instance_profile SampleEc2Role
+```
+
 ## AWS CLI Commands
 
 ### List all instance profiles that the rule is associated with enter the following command
