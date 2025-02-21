@@ -1,10 +1,9 @@
 fetch_user_params() {
-    declare -n params=$1
-    while [[ "$2" != "" ]]; do
-        if [[ "$2" == --* ]]; then
-            key="${2:2}"
+    while [[ "$1" != "" ]]; do
+        if [[ "$1" == --* ]]; then
+            key="${1:2}"
             shift
-            params["$key"]=$2
+            params["$key"]=$1
         else
             # Continue silently for unknown parameters
             shift
@@ -12,13 +11,33 @@ fetch_user_params() {
         fi
         shift
     done
+
+    # Output the params array for use in another function
+    echo "${params[@]}"
+}
+
+fetch_user_paramsV2() {
+    local -A params  # Declare an associative array locally
+    while [[ "$1" != "" ]]; do
+        if [[ "$1" == --* ]]; then
+            params["$1"]=$2
+            shift 2
+        else
+            # Continue silently for unknown parameters
+            shift
+            continue
+        fi
+    done
+
+    echo "${params[@]}"
 }
 
 filter_params() {
-    declare -A required_params=$1
-    declare -A optional_params=$2
-    declare -A user_params=$3
-    declare -A matched_params=$4
+    local -A user_params=$1
+    echo "User params: ${user_params[@]}"  # Debugging statement
+    local -A required_params=$2
+    local -A optional_params=$3
+    local -A matched_params
 
     for key in "${!required_params[@]}"; do
         if [[ -n "${user_params[${required_params[$key]}]}" ]]; then
@@ -27,17 +46,18 @@ filter_params() {
             matched_params["$key"]="${user_params[$key]}"
         fi
     done
+
+    echo "${matched_params[@]}"
 }
 
 library_method1() {
-    declare -A required_params=( ["i"]="id" ["j"]="json" ["r"]="required" ) # map of required parameters
-    declare -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
-    declare -A user_params
-    declare -A filtered_params
+    echo "Library method 1..."  # Debugging statement
+    local -A required_params=( ["i"]="id" ["j"]="json" ["r"]="required" ) # map of required parameters
+    local -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
+    local -A user_params
+    local -A filtered_params
 
-    fetch_user_params user_params "$@"
-
-    filter_params required_params optional_params user_params filtered_params
+    filtered_params=$(filter_params $(fetch_user_paramsV2 "$@") required_params optional_params)
 
     echo "Required params:"
     echo "${filtered_params[@]}"
