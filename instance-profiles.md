@@ -1,13 +1,39 @@
 # Delete IAM Roles
 
 ## Using CLI Wrapper
+### Load Library Commands
+```
+source ./lib/load.sh
+```
+### Remove Instance Profile
 
+```
+remove_role_from_instance_profile SampleEc2Role
+```
+### Delete Role Policies
+
+```
+delete_role_policies SampleEc2Role
+```
+### Detach Role Profile
+
+```
+detach_role_policies SampleEc2Role
+```
 ### Delete Instance Profile
 
 ```
-source ./lib/load.sh
-
 delete_instance_profile SampleEc2Role
+```
+### Delete Instance Profile
+
+```
+delete_instance_profile SampleEc2Role
+```
+### Delete Role
+
+```
+delete_role SampleEc2Role
 ```
 
 ## AWS CLI Commands
