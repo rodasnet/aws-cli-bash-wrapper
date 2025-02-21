@@ -5,7 +5,7 @@
 ```
 source ./lib/load.sh
 
-app_call_api --url https://example.coms --id 123
+library_method1 --id 123 --json input.json
 
 ```
 
