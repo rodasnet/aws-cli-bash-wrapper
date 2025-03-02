@@ -19,7 +19,7 @@ fetch_user_params() {
 fetch_user_paramsV2() {
     local -A params  # Declare an associative array locally
     while [[ "$1" != "" ]]; do
-        if [[ "$1" == --* ]]; then
+        if [[ "$1" == --* || "$1" == -* ]]; then
             params["$1"]=$2
             shift 2
         else
@@ -29,7 +29,11 @@ fetch_user_paramsV2() {
         fi
     done
 
-    echo "${params[@]}"
+    # Iterate through the array and format key-value pairs in a single line
+    for key in "${!params[@]}"; do
+        echo -n "$key ${params[$key]} "
+    done
+    # echo # Add a newline at the end
 }
 
 filter_params() {
@@ -61,4 +65,9 @@ library_method1() {
 
     echo "Required params:"
     echo "${filtered_params[@]}"
+}
+
+library_test_fetch_user_paramsV2 () {
+    echo "Testing fetch_user_paramsV2..."
+    fetch_user_paramsV2 "$@"
 }
