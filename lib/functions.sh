@@ -28,12 +28,15 @@ filter_params() {
     local -A optional_params=$3
     local -A matched_params
 
-    # TODO: Add a check for single dash (-*) or double dash (--*) parameters
+    # Check for single dash (-*) or double dash (--*) parameters
+    # handling both short-form (-*) and long-form (--*) dash-based parameters.
     for key in "${!required_params[@]}"; do
-        if [[ -n "${user_params[${required_params[$key]}]}" ]]; then
-            matched_params["$key"]="${user_params[${required_params[$key]}]}"
-        elif [[ -n "${user_params[$key]}" ]]; then
-            matched_params["$key"]="${user_params[$key]}"
+        if [[ -n "${user_params[--${required_params[$key]}]}" ]]; then
+            matched_params["--${required_params[$key]}"]="${user_params[--${required_params[$key]}]}"
+        fi
+
+        if [[ -n "${user_params[-$key]}" ]]; then
+            matched_params["-$key"]="${user_params[-$key]}"
         fi
     done
 
