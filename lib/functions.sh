@@ -1,3 +1,11 @@
+print_params() {
+    local -n params_ref=$1
+    # Iterate through the array and format key-value pairs in a single line
+    for key in "${!params_ref[@]}"; do
+        echo -n "$key ${params_ref[$key]} "
+    done
+}
+
 fetch_user_params() {
     local -A params  
     while [[ "$1" != "" ]]; do
@@ -11,11 +19,7 @@ fetch_user_params() {
         fi
     done
 
-    # Iterate through the array and format key-value pairs in a single line
-    for key in "${!params[@]}"; do
-        echo -n "$key ${params[$key]} "
-    done
-    # echo # Add a newline at the end
+    print_params params
 }
 
 filter_params() {
@@ -33,7 +37,7 @@ filter_params() {
         fi
     done
 
-    echo "${matched_params[@]}"
+    print_params matched_params
 }
 
 library_test_filter_params() {
