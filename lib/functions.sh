@@ -22,6 +22,22 @@ fetch_user_params() {
     print_params params
 }
 
+serialize_user_params() {
+    local -A params  
+    while [[ "$1" != "" ]]; do
+        if [[ "$1" == --* || "$1" == -* ]]; then
+            params["$1"]=$2
+            shift 2
+        else
+            # Continue silently for unknown parameters
+            shift
+            continue
+        fi
+    done
+    
+    echo "${params[@]}"
+}
+
 filter_params() {
     local -A user_params=$1
     local -A required_params=$2
@@ -49,6 +65,8 @@ library_test_filter_params() {
     local -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
     local -A user_params
     local -A filtered_params
+
+    local -S 
 
     filtered_params=$(filter_params $(fetch_user_paramsV2 "$@") required_params optional_params)
 
