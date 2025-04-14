@@ -23,7 +23,7 @@ fetch_user_params() {
 }
 
 serialize_user_params() {
-    local -A params  
+    local -A params 
     while [[ "$1" != "" ]]; do
         if [[ "$1" == --* || "$1" == -* ]]; then
             params["$1"]=$2
@@ -71,36 +71,33 @@ replace_string_values_example() {
     echo "$json_string"
 }
 
-# Function to replace placeholders in a JSON template
+# Function to replace placeholders in a JSON template and output the result directly
 replace_json_values() {
-    # Check if at least three arguments are provided
-    if [ "$#" -lt 3 ]; then
-        echo "Usage: replace_json_values <input_json_template> <output_json_file> <key1=value1> [key2=value2] ..."
+    if [ "$#" -lt 2 ]; then
+        echo "Usage: replace_json_values <input_json_template> <key1=value1> [key2=value2] ..."
         return 1
     fi
 
-    # Assign input arguments to variables
     local input_template=$1
-    local output_file=$2
 
-    # Copy the input template to the specified output file
-    cp "$input_template" "$output_file"
+    # Read template content
+    local json_content
+    json_content=$(<"$input_template")
 
-    # Shift past the first two arguments (input_template and output_file)
-    shift 2
-
-    # Iterate through key-value pairs
+    # Process key-value replacements
+    shift
     for pair in "$@"; do
         local key=$(echo "$pair" | cut -d'=' -f1)
         local value=$(echo "$pair" | cut -d'=' -f2)
 
-        # Replace placeholders with actual values in the JSON file
-        sed -i "s|{{${key}}}|${value}|g" "$output_file"
+        # Replace placeholders in JSON content
+        json_content=$(echo "$json_content" | sed "s|{{${key}}}|${value}|g")
     done
 
-    echo "The JSON file has been updated and saved as $output_file"
-    return 0
+    # Output modified JSON
+    echo "$json_content"
 }
+
 
 # filter_params() {
 #     local -A user_params=$1
