@@ -112,3 +112,75 @@ library_test_fetch_user_paramsV2 () {
     echo "Testing fetch_user_paramsV2..."
     fetch_user_paramsV2 "$@"
 }
+
+
+replace_json_template_values() {
+    local json_string="$1"
+    local -A params=$2
+
+    # Iterate through the associative array and replace placeholders in the JSON string
+    for key in "${!params[@]}"; do
+        json_string="${json_string//\{$key\}/${params[$key]}}"
+    done
+
+    echo "$json_string"
+}
+
+# Function to replace placeholders in a JSON template
+replace_json_values_v01() {
+    # Check if required arguments are provided
+    if [ "$#" -ne 3 ]; then
+        echo "Usage: replace_json_values <input_json_template> <key1=value1> <key2=value2>"
+        return 1
+    fi
+
+    # Assign input arguments to variables
+    local input_template=$1
+    local key1=$(echo "$2" | cut -d'=' -f1)
+    local value1=$(echo "$2" | cut -d'=' -f2)
+    local key2=$(echo "$3" | cut -d'=' -f1)
+    local value2=$(echo "$3" | cut -d'=' -f2)
+
+    # Create output JSON file
+    local output_file="output.json"
+    cp "$input_template" "$output_file"
+
+    # Replace placeholders with actual values in the JSON file
+    sed -i "s|{{${key1}}}|${value1}|g" "$output_file"
+    sed -i "s|{{${key2}}}|${value2}|g" "$output_file"
+
+    echo "The JSON file has been updated and saved as $output_file"
+    return 0
+}
+
+#!/bin/bash
+
+# Function to replace placeholders in a JSON template
+replace_json_values() {
+    # Check if at least two arguments are provided
+    if [ "$#" -lt 2 ]; then
+        echo "Usage: replace_json_values <input_json_template> <key1=value1> [key2=value2] ..."
+        return 1
+    fi
+
+    # Assign the input JSON template to a variable
+    local input_template=$1
+
+    # Create output JSON file
+    local output_file="output.json"
+    cp "$input_template" "$output_file"
+
+    # Iterate through key-value pairs
+    shift # Move past the first argument (input_template)
+    for pair in "$@"; do
+        local key=$(echo "$pair" | cut -d'=' -f1)
+        local value=$(echo "$pair" | cut -d'=' -f2)
+        
+        # Replace placeholders with actual values in the JSON file
+        sed -i "s|{{${key}}}|${value}|g" "$output_file"
+    done
+
+    echo "The JSON file has been updated and saved as $output_file"
+    return 0
+}
+
