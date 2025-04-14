@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Test functions for the library
 # This file contains test functions for the library methods.
@@ -8,14 +8,18 @@
 # and ensure that they work as expected.
 # They are not meant to be run directly, but rather called from the main script.
 
-test_replace_json_template_values() {
-    echo "Testing replace_json_template_values..."
-    local json_template="$DIR/files/json/example.json"
-    replace_json_values $json_template name=Daniel age=40 city=NewYork occupation=Engineer
-    # replace_json_values ./files/json/example.json name=Michael age=42 city=SanFrancisco occupation=Developer
+test_replace_json_template_values_V2() {
+    echo "Running test test_replace_json_template_values_V2..."
 
-    # Example usage of the function v01
-    replace_json_values ./files/json/example.json name=Michael age=42
+    local json_template="$DIR/files/json/example.json"
+    local params="name=Edward age=82 city=New York occupation=Engineer"
+    local result=$(replace_json_values $json_template $params)
+    echo "Result: $result"
+    # Test with different values
+    # Uncomment the following line to test with different values
+    # replace_json_template_values $json_template name=Jane age=25 city=Los Angeles occupation=Designer
+    # Uncomment the following line to test with different values
+    # replace_json_values $json_template name=Andrew age=48 city=Buffalo occupation=Doctor
 }
 
 test_replace_json_template_values() {
