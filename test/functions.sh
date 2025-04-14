@@ -64,3 +64,33 @@ library_test_fetch_user_paramsV2 () {
 }
 
 
+library_test_method_fetch_user_params() {
+    echo "Testing library_test_method_fetch_user_params..."
+    fetch_user_params "$@"
+}
+
+
+library_test_methods_fetch_user_params_and_filter_params() {
+
+    local -A required_params=( ["i"]="id" ["j"]="json" ) # map of required parameters
+    local -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
+
+    local user_params=$(fetch_user_params "$@")
+    # user_params is a string of key-value pairs 
+    # e.g. "id=123 json=input.json profile=default other-option=other.json"
+
+    filter_params required_params optional_params user_params
+    # business_logic1 filtered_params
+}
+
+# library_test_methods_fetch_user_params_and_filter_params() {
+
+#     declare -A required_params=( ["i"]="id" ["j"]="json" ) # map of required parameters
+#     declare -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
+
+#     fetch_user_params "$@" 
+#     filter_params required_params optional_params user_params
+#     business_logic1 filtered_params
+# }
+
+business_logic1() { echo "Business logic 1 executed with params: $@"; }
