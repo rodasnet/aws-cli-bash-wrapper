@@ -1,0 +1,53 @@
+#!/bin/bash
+
+#!/bin/bash
+
+
+# Function to launch an EC2 instance without writing to disk
+launch_ec2_instance() {
+
+# Example usage
+# launch_ec2_instance my-template.json ami-1234567890abcdef0
+    if [ "$#" -lt 2 ]; then
+        echo "Usage: launch_ec2_instance <template_file> <ImageId>"
+        return 1
+    fi
+
+    local template_file=$1
+    local image_id=$2
+
+    # Pass dynamically replaced JSON directly to AWS CLI
+    aws ec2 run-instances --cli-input-json "$(replace_json_values "$template_file" ImageId="$image_id")"
+
+    echo "EC2 instance launched using Image ID: $image_id"
+    return 0
+}
+
+
+
+
+copilotgen_lake_formation_grant_permissions() {
+  local bucket_name=$1
+  local account_id=$2
+  local region=$3
+
+  if [ -z "$bucket_name" ] || [ -z "$account_id" ] || [ -z "$region" ]; then
+    echo "Usage: lf_grant_permissions <bucket_name> <account_id> <region>"
+    return 1
+  fi
+
+  aws s3api put-bucket-acl --bucket "$bucket_name" --grant-read "uri=http://acs.amazonaws.com/groups/global/AllUsers" --region "$region"
+  aws s3api put-bucket-policy --bucket "$bucket_name" --policy "{
+    \"Version\": \"2012-10-17\",
+    \"Statement\": [
+      {
+        \"Effect\": \"Allow\",
+        \"Principal\": {
+          \"AWS\": \"arn:aws:iam::$account_id:root\"
+        },
+        \"Action\": \"s3:GetObject\",
+        \"Resource\": \"arn:aws:s3:::$bucket_name/*\"
+      }
+    ]
+  }" --region "$region"
+}
