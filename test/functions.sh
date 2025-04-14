@@ -15,8 +15,9 @@ test_replace_json_values() {
 # replace_json_values template.json output.json name=Daniel age=30 city=SanFrancisco occupation=Developer
 
     local json_template="$DIR/files/json/example.json"
+    local json_output="$DIR/files/json/example-output.json"
     local params="name=Daniel age=40 city=New York occupation=Engineer"
-    local result=$(replace_json_values $json_template $params)
+    local result=$(replace_json_values $json_template $json_output $params)
     echo "Result: $result"
 }
 
