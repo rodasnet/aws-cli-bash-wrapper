@@ -8,8 +8,11 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # and ensure that they work as expected.
 # They are not meant to be run directly, but rather called from the main script.
 
-test_replace_json_values_V2() {
-    echo "Running test test_replace_json_values_V2..."
+test_replace_json_values() {
+    echo "Running test test_replace_json_values..."
+
+    # Example usage of the function
+# replace_json_values template.json output.json name=Daniel age=30 city=SanFrancisco occupation=Developer
 
     local json_template="$DIR/files/json/example.json"
     local params="name=Daniel age=40 city=New York occupation=Engineer"
