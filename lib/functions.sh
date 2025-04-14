@@ -108,13 +108,8 @@ library_test_filter_params() {
 #     echo "${filtered_params[@]}"
 # }
 
-library_test_fetch_user_paramsV2 () {
-    echo "Testing fetch_user_paramsV2..."
-    fetch_user_paramsV2 "$@"
-}
 
-
-replace_json_template_values() {
+replace_string_values_example() {
     local json_string="$1"
     local -A params=$2
 
