@@ -121,27 +121,31 @@ replace_string_values_example() {
     echo "$json_string"
 }
 
+#!/bin/bash
+
 # Function to replace placeholders in a JSON template
 replace_json_values() {
-    # Check if at least two arguments are provided
-    if [ "$#" -lt 2 ]; then
-        echo "Usage: replace_json_values <input_json_template> <key1=value1> [key2=value2] ..."
+    # Check if at least three arguments are provided
+    if [ "$#" -lt 3 ]; then
+        echo "Usage: replace_json_values <input_json_template> <output_json_file> <key1=value1> [key2=value2] ..."
         return 1
     fi
 
-    # Assign the input JSON template to a variable
+    # Assign input arguments to variables
     local input_template=$1
+    local output_file=$2
 
-    # Create output JSON file
-    local output_file="output.json"
+    # Copy the input template to the specified output file
     cp "$input_template" "$output_file"
 
+    # Shift past the first two arguments (input_template and output_file)
+    shift 2
+
     # Iterate through key-value pairs
-    shift # Move past the first argument (input_template)
     for pair in "$@"; do
         local key=$(echo "$pair" | cut -d'=' -f1)
         local value=$(echo "$pair" | cut -d'=' -f2)
-        
+
         # Replace placeholders with actual values in the JSON file
         sed -i "s|{{${key}}}|${value}|g" "$output_file"
     done
