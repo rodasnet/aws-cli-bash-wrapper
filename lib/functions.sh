@@ -153,8 +153,6 @@ replace_json_values_v01() {
     return 0
 }
 
-#!/bin/bash
-
 # Function to replace placeholders in a JSON template
 replace_json_values() {
     # Check if at least two arguments are provided
