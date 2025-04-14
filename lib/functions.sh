@@ -121,8 +121,6 @@ replace_string_values_example() {
     echo "$json_string"
 }
 
-#!/bin/bash
-
 # Function to replace placeholders in a JSON template
 replace_json_values() {
     # Check if at least three arguments are provided
