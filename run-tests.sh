@@ -3,4 +3,4 @@
 # Load the functions library
 source ./test/load.sh
 
-test_replace_json_template_values_V2
+test_replace_json_values_V2
