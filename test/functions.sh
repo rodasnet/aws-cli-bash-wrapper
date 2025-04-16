@@ -83,6 +83,15 @@ library_test_methods_fetch_user_params_and_filter_params() {
     # business_logic1 filtered_params
 }
 
+library_test_methods_fetch_user_params_and_serialize_user_params() {
+
+    local user_params=$(fetch_user_params "$@")
+    # user_params is a string of key-value pairs 
+    # e.g. "id=123 json=input.json profile=default other-option=other.json"
+
+    serialize_user_params "$user_params"
+}
+
 # library_test_methods_fetch_user_params_and_filter_params() {
 
 #     declare -A required_params=( ["i"]="id" ["j"]="json" ) # map of required parameters

@@ -19,6 +19,23 @@ fetch_user_params() {
         fi
     done
 
+    # output array so that it can be used in other functions
+    echo "${params[@]}"
+}
+
+fetch_user_params_v0_1() {
+    local -A params  
+    while [[ "$1" != "" ]]; do
+        if [[ "$1" == --* || "$1" == -* ]]; then
+            params["$1"]=$2
+            shift 2
+        else
+            # Continue silently for unknown parameters
+            shift
+            continue
+        fi
+    done
+
     print_params params
 }
 
@@ -99,37 +116,24 @@ replace_json_values() {
 }
 
 
-# filter_params() {
-#     local -A user_params=$1
-#     local -A required_params=$2
-#     local -A optional_params=$3
-#     local -A matched_params
+filter_params_v0_2() {
+    local -A user_params=$1
+    local -A required_params=$2
+    local -A optional_params=$3
+    local -A matched_params
 
-#     # Check for single dash (-*) or double dash (--*) parameters
-#     # handling both short-form (-*) and long-form (--*) dash-based parameters.
-#     for key in "${!required_params[@]}"; do
-#         if [[ -n "${user_params[--${required_params[$key]}]}" ]]; then
-#             matched_params["--${required_params[$key]}"]="${user_params[--${required_params[$key]}]}"
-#         fi
+    # Check for single dash (-*) or double dash (--*) parameters
+    # handling both short-form (-*) and long-form (--*) dash-based parameters.
+    for key in "${!required_params[@]}"; do
+        if [[ -n "${user_params[--${required_params[$key]}]}" ]]; then
+            matched_params["--${required_params[$key]}"]="${user_params[--${required_params[$key]}]}"
+        fi
 
-#         if [[ -n "${user_params[-$key]}" ]]; then
-#             matched_params["-$key"]="${user_params[-$key]}"
-#         fi
-#     done
+        if [[ -n "${user_params[-$key]}" ]]; then
+            matched_params["-$key"]="${user_params[-$key]}"
+        fi
+    done
 
-#     print_params matched_params
-# }
+    print_params matched_params
+}
 
-
-# library_test_copy() {
-#     echo "Library method filter_params..."  # Debugging statement
-#     local -A required_params=( ["i"]="id" ["j"]="json" ["r"]="required" ) # map of required parameters
-#     local -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
-#     local -A user_params
-#     local -A filtered_params
-
-#     filtered_params=$(filter_params $(fetch_user_paramsV2 "$@") required_params optional_params)
-
-#     echo "Required params:"
-#     echo "${filtered_params[@]}"
-# }
