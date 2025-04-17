@@ -74,11 +74,16 @@ filter_params_v0_2() {
 
 serialize_user_params() {
     local -A params
+    local processed_keys=()
     local result=""
 
+    # First pass: Collect parameters and strip hyphens
     while [[ "$1" != "" ]]; do
         if [[ "$1" == --* || "$1" == -* ]]; then
-            params["$1"]="$2"
+            clean_key="${1#--}"  # Remove double hyphens
+            clean_key="${clean_key#-}"  # Remove single hyphen if applicable
+            params["$clean_key"]="$2"
+            processed_keys+=("$clean_key")  # Preserve input order
             shift 2
         else
             shift
@@ -86,14 +91,13 @@ serialize_user_params() {
         fi
     done
 
-    # Sort keys and properly strip hyphens before formatting output
-    for key in $(printf "%s\n" "${!params[@]}" | sort); do
-        clean_key="${key#--}"
-        clean_key="${clean_key#-}"
-        result+="${clean_key}=${params[$key]} "
+    # Second pass: Assemble key-value pairs in original order
+    for key in "${processed_keys[@]}"; do
+        result+="${key}=${params[$key]} "
     done
 
-    echo "$result"
+    # Trim trailing space before output
+    echo "${result% }"
 }
 
 serialize_user_params__bug_has_dashes() {
