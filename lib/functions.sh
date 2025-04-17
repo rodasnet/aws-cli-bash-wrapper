@@ -12,6 +12,82 @@ print_params() {
 }
 
 fetch_user_params() {
+    local -A params
+    local ordered_keys=()
+
+    while [[ "$1" != "" ]]; do
+        if [[ "$1" == --* ]]; then  # Only allow boolean for double-dashed parameters
+            clean_key="$1"
+
+            if [[ -z "$2" || "$2" == --* || "$2" == -* ]]; then
+                params["$clean_key"]="true"  # Assign "true" only to standalone double-dash flags
+                ordered_keys+=("$clean_key")
+                shift
+            else
+                params["$clean_key"]="$2"
+                ordered_keys+=("$clean_key")
+                shift 2
+            fi
+        elif [[ "$1" == -* ]]; then  # Single-dash parameters must have values
+            clean_key="$1"
+
+            if [[ -z "$2" || "$2" == --* || "$2" == -* ]]; then
+                echo "Error: Single-dash parameter '$clean_key' must have a value." >&2
+                return 1
+            else
+                params["$clean_key"]="$2"
+                ordered_keys+=("$clean_key")
+                shift 2
+            fi
+        else
+            shift
+            continue
+        fi
+    done
+
+    # Print parameters in the original order
+    local result=""
+    for key in "${ordered_keys[@]}"; do
+        result+="$key ${params[$key]} "
+    done
+
+    echo "${result% }"
+}
+
+fetch_user_params_v0_02() {
+    local -A params
+    local ordered_keys=()
+
+    while [[ "$1" != "" ]]; do
+        if [[ "$1" == --* || "$1" == -* ]]; then
+            clean_key="$1"
+
+            # Check if the next argument is missing or another flag
+            if [[ -z "$2" || "$2" == --* || "$2" == -* ]]; then
+                params["$clean_key"]="true"  # Assign "true" to standalone flags
+                ordered_keys+=("$clean_key")
+                shift
+            else
+                params["$clean_key"]="$2"
+                ordered_keys+=("$clean_key")
+                shift 2
+            fi
+        else
+            shift
+            continue
+        fi
+    done
+
+    # Print parameters in the original order
+    local result=""
+    for key in "${ordered_keys[@]}"; do
+        result+="$key ${params[$key]} "
+    done
+
+    echo "${result% }"
+}
+
+fetch_user_params_v0_01() {
     local -A params  
     while [[ "$1" != "" ]]; do
         if [[ "$1" == --* || "$1" == -* ]]; then

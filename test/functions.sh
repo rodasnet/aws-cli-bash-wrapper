@@ -111,33 +111,25 @@ library_test_function_fetch_user_params() {
     echo "Testing fetch_user_params..."
 
     # Define test cases
-    local input1="--id 123 --json input.json --profile user1"
-    local expected1="id=123 json=input.json profile=user1"
+    local input1="--id 123 --json input.json --profile user1 doesnotexist"
+    local expected1="--id 123 --json input.json --profile user1"
 
-    local input2="--name Daniel --age 30 --city Tokyo"
-    local expected2="name=Daniel age=30 city=Tokyo"
+    local input2="unknownparam --name Daniel --age 30 --city Tokyo "
+    local expected2="--name Daniel --age 30 --city Tokyo"
 
-    local input3="--option value --flag --another 42"
-    local expected3="option=value flag=true another=42"
+    local input3="--option value --flag --another 42 unsupportedflag"
+    local expected3="--option value --flag true --another 42"
 
-    # Mock print_params to capture output
-    print_params() {
-        local -A params="$1"
-        local result=""
-
-        for key in "${!params[@]}"; do
-            clean_key="${key#--}"
-            clean_key="${clean_key#-}"
-            result+="${clean_key}=${params[$key]} "
-        done
-
-        echo "${result% }"
+    # Capture function output
+    capture_output() {
+        output=$(fetch_user_params $1)
+        echo "$output"
     }
 
     # Run function and capture output
-    local output1=$(fetch_user_params $input1)
-    local output2=$(fetch_user_params $input2)
-    local output3=$(fetch_user_params $input3)
+    local output1=$(capture_output "$input1")
+    local output2=$(capture_output "$input2")
+    local output3=$(capture_output "$input3")
 
     # Validate results
     if [[ "$output1" == "$expected1" ]]; then
@@ -158,6 +150,7 @@ library_test_function_fetch_user_params() {
         echo "Test 3 failed: Expected '$expected3', but got '$output3'"
     fi
 }
+
 
 library_test_function_filter_params() {
     echo "Testing filter_params..."
