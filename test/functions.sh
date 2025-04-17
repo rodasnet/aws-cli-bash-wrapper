@@ -155,7 +155,7 @@ debug_library_test_function_filter_params() {
     # Simulated user input (space-separated format)
     user_params="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
 
-    # Required & optional parameters in new format
+    # Required & optional parameters (optional includes Boolean flags)
     required_params="i=id j=json"
     optional_params="p=profile o=otheroption v=verbose d=dry-run"
 
@@ -165,10 +165,7 @@ debug_library_test_function_filter_params() {
     # Display results
     echo "Filtered Parameters: $filtered_output"
 }
-Test failed: Expected 
-'--json input.json --id 123 --otheroption other.json --verbose true --dry-run true', 
-but got 
-'--json input.json --verbose --dry-run --id 123 --dry-run true --otheroption other.json'   
+  
 
 
 library_test_function_filter_params() {

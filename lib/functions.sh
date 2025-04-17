@@ -105,23 +105,33 @@ fetch_user_params_v0_01() {
 }
 
 filter_params() {
-    local user_params="$1"   # User input as space-separated key-value pairs
+    local user_params="$1"  # User input as space-separated key-value pairs
     local required_params="$2"  # Expected format: "i=id j=json"
-    local optional_params="$3"  # Expected format: "p=profile o=otheroption"
+    local optional_params="$3"  # Expected format: "p=profile o=otheroption v=verbose d=dry-run"
+
     local -A matched_params
     local key value
     local boolean_flags=()  # Store boolean flags separately
 
+    # Identify Boolean flags from `optional_params` (parameters that don’t expect values)
+    local bool_flag_keys=""
+    for entry in $optional_params; do
+        key="${entry%%=*}"  # Extract short-name key (e.g., "v")
+        value="${entry#*=}"  # Extract corresponding full parameter name (e.g., "verbose")
+
+        bool_flag_keys+=" $value"  # Store potential boolean flag names
+    done
+
     # Parse required and optional parameters
     for entry in $required_params $optional_params; do
-        key="${entry%%=*}"    # Extract short-name key (e.g., "i")
-        value="${entry#*=}"    # Extract corresponding full parameter name (e.g., "id")
+        key="${entry%%=*}"  # Extract short-name key (e.g., "i")
+        value="${entry#*=}"  # Extract corresponding full parameter name (e.g., "id")
 
         # Check if the full parameter exists in user-provided data
         if [[ "$user_params" == *"--$value "* ]]; then
             matched_params["--$value"]="${user_params##*--$value }"
             matched_params["--$value"]="${matched_params["--$value"]%% *}"  # Extract correct value
-        elif [[ "$user_params" == *"--$value"* ]]; then
+        elif [[ "$user_params" == *"--$value"* && "$bool_flag_keys" == *" $value "* ]]; then
             # Boolean flag detected—store it separately
             boolean_flags+=("--$value")
         fi
