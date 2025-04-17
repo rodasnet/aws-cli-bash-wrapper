@@ -151,44 +151,44 @@ library_test_function_fetch_user_params() {
     fi
 }
 
+debug_library_test_function_filter_params() {
+    # Simulated user input (space-separated format)
+    user_params="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
+
+    # Required & optional parameters in new format
+    required_params="i=id j=json"
+    optional_params="p=profile o=otheroption v=verbose d=dry-run"
+
+    # Call function
+    filtered_output=$(filter_params "$user_params" "$required_params" "$optional_params")
+
+    # Display results
+    echo "Filtered Parameters: $filtered_output"
+}
+
 library_test_function_filter_params() {
     echo "Testing filter_params..."
 
-    local -A required_params=( ["i"]="id" ["j"]="json" )
-    local -A optional_params=( ["p"]="profile" ["o"]="otheroption" )
-    local user_params="--json input.json --id 123 --otheroption other.json --profile default"
+    # Define test cases
+    local user_params="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
+    local required_params="i=id j=json"
+    local optional_params="p=profile o=otheroption v=verbose d=dry-run"
 
     # Expected output values
-    local expected_required="id=123 json=input.json"
-    local expected_optional="--profile default otheroption=other.json"
+    local expected_output="--json input.json --id 123 --otheroption other.json --verbose true --dry-run true"
 
-    # Run function and capture output properly
-    output=$(filter_params "$user_params" required_params optional_params)
+    # Run function and capture output
+    local actual_output
+    actual_output=$(filter_params "$user_params" "$required_params" "$optional_params")
 
-    # Extract values from function output
-    local actual_required
-    local actual_optional
-    if [[ "$output" =~ id=([0-9]+)\ json=([^ ]+) ]]; then
-        actual_required="id=${BASH_REMATCH[1]} json=${BASH_REMATCH[2]}"
-    fi
-    if [[ "$output" =~ otheroption=([^ ]+) ]]; then
-        actual_optional="otheroption=${BASH_REMATCH[1]}"
-    fi
-
-    # Validate required parameters
-    if [[ "$actual_required" == "$expected_required" ]]; then
-        echo "Required parameters test passed"
+    # Validate results
+    if [[ "$actual_output" == "$expected_output" ]]; then
+        echo "Test passed!"
     else
-        echo "Required parameters test failed: Expected '$expected_required', but got '$actual_required'"
-    fi
-
-    # Validate optional parameters
-    if [[ "$actual_optional" == "$expected_optional" ]]; then
-        echo "Optional parameters test passed"
-    else
-        echo "Optional parameters test failed: Expected '$expected_optional', but got '$actual_optional'"
+        echo "Test failed: Expected '$expected_output', but got '$actual_output'"
     fi
 }
+
 
 library_test_function_filter_params_v0_01() {
     echo "Testing filter_params..."
@@ -243,13 +243,13 @@ library_test_function_print_params() {
     echo "Testing print_params..."
 
     # Define test cases with correct parameter format
-    declare -A test_params1=( ["--id"]="123" ["--json"]="input.json" ["--profile"]="user1" )
+    local -A test_params1=( ["--id"]="123" ["--json"]="input.json" ["--profile"]="user1" )
     local expected1="--json input.json --id 123 --profile user1"
 
-    declare -A test_params2=( ["-n"]="Daniel" ["--age"]="30" ["--city"]="Tokyo" )
+    local -A test_params2=( ["-n"]="Daniel" ["--age"]="30" ["--city"]="Tokyo" )
     local expected2="--city Tokyo -n Daniel --age 30"
 
-    declare -A test_params3=( ["--option"]="value" ["--flag"]="true" ["--another"]="42" )
+    local -A test_params3=( ["--option"]="value" ["--flag"]="true" ["--another"]="42" )
     local expected3="--option value --flag true --another 42"
 
     # Function to capture correct output

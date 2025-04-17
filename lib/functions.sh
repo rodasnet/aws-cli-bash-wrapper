@@ -105,6 +105,38 @@ fetch_user_params_v0_01() {
 }
 
 filter_params() {
+    local user_params="$1"   # User input as space-separated key-value pairs
+    local required_params="$2"  # Expected format: "i=id j=json"
+    local optional_params="$3"  # Expected format: "p=profile o=otheroption"
+    local -A matched_params
+    local key value
+
+    # Parse required and optional parameters
+    for entry in $required_params $optional_params; do
+        key="${entry%%=*}"    # Extract short-name key (e.g., "i")
+        value="${entry#*=}"    # Extract corresponding full parameter name (e.g., "id")
+
+        # Check if the full parameter exists in user-provided data
+        if [[ "$user_params" == *"--$value "* ]]; then
+            matched_params["--$value"]="${user_params##*--$value }"
+            matched_params["--$value"]="${matched_params["--$value"]%% *}"  # Extract correct value
+        elif [[ "$user_params" == *"--$value"* ]]; then
+            # Assign "true" for Boolean flags (parameters present without explicit value)
+            matched_params["--$value"]="true"
+        fi
+    done
+
+    # Convert associative array into space-separated key-value pairs
+    local result=""
+    for key in "${!matched_params[@]}"; do
+        result+="$key ${matched_params[$key]} "
+    done
+
+    # Trim trailing space before returning output
+    echo "${result% }"
+}
+
+filter_params_v0_03() {
     local -A user_params=$1
     local -A required_params=$2
     local -A optional_params=$3
