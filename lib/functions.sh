@@ -11,13 +11,6 @@ print_params() {
     echo "${result% }"
 }
 
-print_params_v0_01() {
-    local -n params_ref=$1
-    for key in "${!params_ref[@]}"; do
-        echo -n "$key ${params_ref[$key]} "
-    done
-}
-
 fetch_user_params() {
     local -A params  
     while [[ "$1" != "" ]]; do
