@@ -8,6 +8,45 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # and ensure that they work as expected.
 # They are not meant to be run directly, but rather called from the main script.
 
+
+library_test_function_serialize_user_params() {
+    echo "Testing serialize_user_params..."
+
+    # Define test cases
+    local input1="--id 123 --json input.json --profile user1"
+    local expected1="id=123 json=input.json profile=user1"
+
+    local input2="--name Daniel --age 30 --city Tokyo"
+    local expected2="name=Daniel age=30 city=Tokyo"
+
+    local input3="--flag --option value --another 42"
+    local expected3="option=value another=42"
+
+    # Run function and capture output
+    local output1=$(serialize_user_params $input1)
+    local output2=$(serialize_user_params $input2)
+    local output3=$(serialize_user_params $input3)
+
+    # Validate results
+    if [[ "$output1" == "$expected1" ]]; then
+        echo "Test 1 passed"
+    else
+        echo "Test 1 failed: Expected '$expected1', but got '$output1'"
+    fi
+
+    if [[ "$output2" == "$expected2" ]]; then
+        echo "Test 2 passed"
+    else
+        echo "Test 2 failed: Expected '$expected2', but got '$output2'"
+    fi
+
+    if [[ "$output3" == "$expected3" ]]; then
+        echo "Test 3 passed"
+    else
+        echo "Test 3 failed: Expected '$expected3', but got '$output3'"
+    fi
+}
+
 library_test_function_replace_json_values() {
     echo "Running test test_replace_json_values..."
 
