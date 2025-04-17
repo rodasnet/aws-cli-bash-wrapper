@@ -16,8 +16,10 @@ library_test_function_serialize_user_params() {
     local input1="--id 123 --json input.json --profile user1"
     local expected1="id=123 json=input.json profile=user1"
 
-    local input2="--name Daniel --age 30 --city Tokyo"
-    local expected2="name=Daniel age=30 city=Tokyo"
+    # This test case has a bug where the single and double dashes
+    # are handled the same and therefor could present a situation where there are duplicate keys
+    local input2="--name Daniel --a 30 --city Tokyo"
+    local expected2="name=Daniel a=30 city=Tokyo"
 
     local input3="--flag --option value --another 42"
     local expected3="option=value another=42"
