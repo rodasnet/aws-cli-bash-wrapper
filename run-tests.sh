@@ -8,4 +8,6 @@ source ./test/load.sh
 # library_test_function_print_params          # WORKING
 # library_test_function_fetch_user_params     # WORKING
 # library_test_function_filter_params         # WORKING
-library_test_replace_json_values
+# library_test_replace_json_values
+
+bats test_create_s3_bucket.bats

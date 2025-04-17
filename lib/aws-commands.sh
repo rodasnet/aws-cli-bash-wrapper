@@ -2,7 +2,7 @@
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$DIR/functions.sh"
-LIB_TEMPLATES_PATH="$DIR/lib/templates/s3.json"
+LIB_TEMPLATES_PATH="$DIR/templates/s3.json"
 
 create_s3_bucket() {
     # Default template file path

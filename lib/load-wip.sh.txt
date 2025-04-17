@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Determine the library path dynamically
+LIB_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export LIB_PATH
+
+# Verify AWS CLI is installed
+if ! command -v aws &> /dev/null; then
+    echo "Error: AWS CLI is not installed. Please install it before proceeding." >&2
+    exit 1
+fi
+
+# Load AWS wrapper functions
+if [[ -f "$LIB_PATH/aws-commands.sh" ]]; then
+    source "$LIB_PATH/aws-commands.sh"
+else
+    echo "Warning: aws-commands.sh not found in $LIB_PATH. Skipping AWS CLI functions loading." >&2
+fi
+
+# Dynamically source additional scripts in lib directory
+for script in "$LIB_PATH"/*.sh; do
+    [[ -f "$script" ]] && source "$script"
+done
+
+# Enable optional debugging mode (run as DEBUG=true ./load.sh)
+DEBUG=${DEBUG:-false}
+if [[ "$DEBUG" == "true" ]]; then
+    set -x  # Enable Bash debugging
+    echo "Debug mode enabled."
+fi
+
+echo "Library functions loaded successfully from $LIB_PATH."
