@@ -208,3 +208,48 @@ library_test_function_filter_params_v0_1_copy1() {
     echo "${filtered_params[@]}"
 }
 
+library_test_function_print_params() {
+    echo "Testing print_params..."
+
+    # Define test cases with correct parameter format
+    declare -A test_params1=( ["--id"]="123" ["--json"]="input.json" ["--profile"]="user1" )
+    local expected1="--json input.json --id 123 --profile user1"
+
+    declare -A test_params2=( ["-n"]="Daniel" ["--age"]="30" ["--city"]="Tokyo" )
+    local expected2="--city Tokyo -n Daniel --age 30"
+
+    declare -A test_params3=( ["--option"]="value" ["--flag"]="true" ["--another"]="42" )
+    local expected3="--option value --flag true --another 42"
+
+    # Function to capture correct output
+    capture_output() {
+        local var_name=$1  # Get the variable name as a string
+        output=$(print_params "$var_name")  # Pass the name, not the variable itself
+        echo "$output"
+    }
+
+    # Run function and capture output
+    local output1=$(capture_output test_params1)
+    local output2=$(capture_output test_params2)
+    local output3=$(capture_output test_params3)
+
+    # Validate results
+    if [[ "$output1" == "$expected1" ]]; then
+        echo "Test 1 passed"
+    else
+        echo "Test 1 failed: Expected '$expected1', but got '$output1'"
+    fi
+
+    if [[ "$output2" == "$expected2" ]]; then
+        echo "Test 2 passed"
+    else
+        echo "Test 2 failed: Expected '$expected2', but got '$output2'"
+    fi
+
+    if [[ "$output3" == "$expected3" ]]; then
+        echo "Test 3 passed"
+    else
+        echo "Test 3 failed: Expected '$expected3', but got '$output3'"
+    fi
+}
+

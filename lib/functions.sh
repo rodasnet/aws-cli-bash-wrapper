@@ -1,6 +1,18 @@
 print_params() {
     local -n params_ref=$1
+    local result=""
+
     # Iterate through the array and format key-value pairs in a single line
+    for key in "${!params_ref[@]}"; do
+        result+="$key ${params_ref[$key]} "
+    done
+
+    # Trim trailing space before printing
+    echo "${result% }"
+}
+
+print_params_v0_01() {
+    local -n params_ref=$1
     for key in "${!params_ref[@]}"; do
         echo -n "$key ${params_ref[$key]} "
     done
@@ -44,7 +56,8 @@ filter_params() {
     # TODO: Replace print_params with a function that formats the output as needed
     # For now, just print the matched parameters
     # print_params matched_params
-
+    # Convert associative array into space-separated key=value pairs
+    serialize_user_params
     # Iterate through the array and format key-value pairs in a single line
     for key in "${!matched_params[@]}"; do
         echo -n "$key ${matched_params[$key]} "
