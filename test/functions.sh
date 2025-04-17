@@ -34,29 +34,13 @@ library_test_filter_params() {
     echo "Library method filter_params..."  # Debugging statement
     local -A required_params=( ["i"]="id" ["j"]="json" ["r"]="required" ) # map of required parameters
     local -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
-    local -A user_params
     local -A filtered_params
 
-    local -S 
-
-    filtered_params=$(filter_params $(fetch_user_paramsV2 "$@") required_params optional_params)
+    filtered_params=$(filter_params $(fetch_user_params "$@") required_params optional_params)
 
     echo "Required params:"
     echo "${filtered_params[@]}"
 }
-
-# library_test_copy() {
-#     echo "Library method filter_params..."  # Debugging statement
-#     local -A required_params=( ["i"]="id" ["j"]="json" ["r"]="required" ) # map of required parameters
-#     local -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
-#     local -A user_params
-#     local -A filtered_params
-
-#     filtered_params=$(filter_params $(fetch_user_paramsV2 "$@") required_params optional_params)
-
-#     echo "Required params:"
-#     echo "${filtered_params[@]}"
-# }
 
 library_test_fetch_user_paramsV2 () {
     echo "Testing fetch_user_paramsV2..."
