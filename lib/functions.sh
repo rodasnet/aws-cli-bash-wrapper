@@ -77,14 +77,19 @@ serialize_user_params() {
     local processed_keys=()
     local result=""
 
-    # First pass: Collect parameters and strip hyphens
     while [[ "$1" != "" ]]; do
         if [[ "$1" == --* || "$1" == -* ]]; then
-            clean_key="${1#--}"  # Remove double hyphens
-            clean_key="${clean_key#-}"  # Remove single hyphen if applicable
-            params["$clean_key"]="$2"
-            processed_keys+=("$clean_key")  # Preserve input order
-            shift 2
+            clean_key="${1#--}"
+            clean_key="${clean_key#-}"
+
+            if [[ "$2" == "" || "$2" == --* || "$2" == -* ]]; then
+                params["$clean_key"]="true"  # Store lone flags as boolean true
+                shift
+            else
+                params["$clean_key"]="$2"
+                processed_keys+=("$clean_key")  # Preserve input order
+                shift 2
+            fi
         else
             shift
             continue
