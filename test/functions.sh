@@ -113,40 +113,7 @@ library_test_function_replace_string_values_example() {
     echo "Result: $result"
 }
 
-library_test_function_filter_params_v0_3_copilot() {
-    
-    local -A required_params=( ["i"]="id" ["j"]="json" ["r"]="required" ) # map of required parameters
-    local -A optional_params=( ["p"]="profile" ["o"]="otheroption" ) # map of optional parameters
-    local -A filtered_params
-    local user_params="--json input.json --id 123 --other-option other.json"
 
-    # Function to filter parameters
-    filter_params() {
-        local -A required=$1
-        local -A optional=$2
-        local params=$3
-        declare -A output
-
-        for param in ${params}; do
-            key=${param%% *}
-            value=${param#* }
-
-            if [[ -v required[$key] ]]; then
-                output[${required[$key]}]=$value
-            elif [[ -v optional[$key] ]]; then
-                output[${optional[$key]}]=$value
-            fi
-        done
-
-        echo "${output[@]}"
-    }
-
-    # Example usage of the filter_params function
-    filtered_params=$(filter_params required_params optional_params "$user_params")
-
-    echo "Filtered Required params:"
-    echo "${filtered_params[@]}"
-}
 
 library_test_function_fetch_user_params() {
     echo "Testing fetch_user_params..."
@@ -237,54 +204,11 @@ library_test_function_filter_params() {
     done
 }
 
-library_test_function_filter_params_v0_01() {
-    echo "Testing filter_params..."
-
-    local -A required_params=( ["i"]="id" ["j"]="json" ["r"]="required" )
-    local -A optional_params=( ["p"]="profile" ["o"]="otheroption" )
-    local user_params="--json input.json --id 123 --otheroption other.json"
-    local -A filtered_params
-
-    # Expected output values
-    local expected_required="id=123 json=input.json"
-    local expected_optional="otheroption=other.json"
-
-    # Run function and capture output
-    filter_params "$user_params" required_params optional_params
-
-    local actual_required="${filtered_params[id]}=${filtered_params[json]}"
-    local actual_optional="${filtered_params[otheroption]}"
-
-    # Validate required parameters
-    if [[ "$actual_required" == "$expected_required" ]]; then
-        echo "Required parameters test passed"
-    else
-        echo "Required parameters test failed: Expected '$expected_required', but got '$actual_required'"
-    fi
-
-    # Validate optional parameters
-    if [[ "$actual_optional" == "$expected_optional" ]]; then
-        echo "Optional parameters test passed"
-    else
-        echo "Optional parameters test failed: Expected '$expected_optional', but got '$actual_optional'"
-    fi
-}
 
 
 
-library_test_function_filter_params_v0_1_copy1() {
 
-    local -A required_params=( ["i"]="id" ["j"]="json" ["r"]="required" ) # map of required parameters
-    local -A optional_params=( ["p"]="profile" ["o"]="otheroption" ) # map of optional parameters
-    local user_params="--json input.json --id 123 --otheroption other.json"
-    local -A filtered_params
 
-    # example usage of thefilter_params function
-    filter_params "$user_params" required_params optional_params
-
-    echo "Required params:"
-    echo "${filtered_params[@]}"
-}
 
 library_test_function_print_params() {
     echo "Testing print_params..."
