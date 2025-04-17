@@ -171,12 +171,12 @@ debug_library_test_function_filter_params() {
 library_test_function_filter_params() {
     echo "Testing filter_params..."
 
-    # Define test cases
-    local user_params="--json input.json --id 123 --otheroption other.json --verbose --dry-run false"
+    # Define test cases with short-form parameters
+    local user_params="-j input.json -i 123 -o other.json --verbose --dry-run false"
     local required_params="i=id j=json"
     local optional_params="p=profile o=otheroption verbose=boolean dry-run=boolean"
 
-    # Expected output values
+    # Expected output values (short-form parameters mapped correctly)
     local expected_output="--json input.json --id 123 --otheroption other.json --verbose"
 
     # Run function and capture output
@@ -191,7 +191,7 @@ library_test_function_filter_params() {
     fi
 
     # Additional test: Ensure dry-run defaults to true if present without explicit "false"
-    user_params="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
+    user_params="-j input.json -i 123 -o other.json --verbose --dry-run"
     expected_output="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
 
     actual_output=$(filter_params "$user_params" "$required_params" "$optional_params")
