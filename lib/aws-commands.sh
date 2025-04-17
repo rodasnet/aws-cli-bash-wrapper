@@ -1,9 +1,7 @@
-#!/bin/bash
-
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$DIR/functions.sh"
 LIB_TEMPLATES_PATH="$DIR/templates/s3.json"
-
+echo "AWS CLI Wrapper Functions loaded into memory."
 create_s3_bucket() {
     # Default template file path
     local template_file="$LIB_TEMPLATES_PATH"

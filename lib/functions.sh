@@ -1,3 +1,5 @@
+echo "BASH CLI Wrapper Functions loaded into memory."
+
 print_params() {
     local -n params_ref=$1
     local result=""
