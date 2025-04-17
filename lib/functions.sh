@@ -54,56 +54,6 @@ fetch_user_params() {
     echo "${result% }"
 }
 
-fetch_user_params_v0_02() {
-    local -A params
-    local ordered_keys=()
-
-    while [[ "$1" != "" ]]; do
-        if [[ "$1" == --* || "$1" == -* ]]; then
-            clean_key="$1"
-
-            # Check if the next argument is missing or another flag
-            if [[ -z "$2" || "$2" == --* || "$2" == -* ]]; then
-                params["$clean_key"]="true"  # Assign "true" to standalone flags
-                ordered_keys+=("$clean_key")
-                shift
-            else
-                params["$clean_key"]="$2"
-                ordered_keys+=("$clean_key")
-                shift 2
-            fi
-        else
-            shift
-            continue
-        fi
-    done
-
-    # Print parameters in the original order
-    local result=""
-    for key in "${ordered_keys[@]}"; do
-        result+="$key ${params[$key]} "
-    done
-
-    echo "${result% }"
-}
-
-fetch_user_params_v0_01() {
-    local -A params  
-    while [[ "$1" != "" ]]; do
-        if [[ "$1" == --* || "$1" == -* ]]; then
-            params["$1"]=$2
-            shift 2
-        else
-            # Continue silently for unknown parameters
-            shift
-            continue
-        fi
-    done
-
-    # Output array to be used in other functions
-    print_params params
-}
-
 filter_params() {
     local user_params="$1"  # User input as space-separated key-value pairs
     local required_params="$2"  # Expected format: "i=id j=json"
@@ -160,85 +110,6 @@ filter_params() {
     echo "${result% }"
 }
 
-filter_params_v1_0_rc_1() {
-    local user_params="$1"  # User input as space-separated key-value pairs
-    local required_params="$2"  # Expected format: "i=id j=json"
-    local optional_params="$3"  # Expected format: "p=profile o=otheroption verbose=boolean dry-run=boolean"
-
-    local -A matched_params
-    local key value
-    local boolean_flags=()
-    
-    # Expand short-form parameters into their long-form equivalents
-    for entry in $required_params $optional_params; do
-        key="${entry%%=*}"   # Extract short-name key (e.g., "j")
-        value="${entry#*=}"   # Extract corresponding full parameter name (e.g., "json" or "boolean")
-
-        if [[ "$value" == "boolean" ]]; then
-            # Handle Boolean flags, ensuring only double-dash flags are allowed
-            if [[ "$user_params" == *"--$key "* ]]; then
-                bool_value="${user_params##*--$key }"
-                bool_value="${bool_value%% *}"  # Extract potential Boolean value
-
-                # If "--dry-run false" is provided, omit it entirely
-                if [[ "$key" == "dry-run" && "$bool_value" == "false" ]]; then
-                    continue
-                fi
-
-                boolean_flags+=("--$key")  # Default to true if flag is present without a value
-            elif [[ "$user_params" == *"--$key"* ]]; then
-                boolean_flags+=("--$key")
-            fi
-        else
-            # Handle both long-form (--json) and short-form (-j) parameters
-            if [[ "$user_params" == *"--$value "* || "$user_params" == *"-$key "* ]]; then
-                matched_params["--$value"]="${user_params##*-$key }"
-                matched_params["--$value"]="${matched_params["--$value"]%% *}"  # Extract correct value
-            fi
-        fi
-    done
-
-    # Convert associative array into space-separated key=value pairs
-    local result=""
-    for key in "${!matched_params[@]}"; do
-        result+="$key ${matched_params[$key]} "
-    done
-
-    # Append Boolean flags at the end
-    for flag in "${boolean_flags[@]}"; do
-        result+="$flag "
-    done
-
-    # Trim trailing space before returning output
-    echo "${result% }"
-}
-
-filter_params_v0_03() {
-    local -A user_params=$1
-    local -A required_params=$2
-    local -A optional_params=$3
-    local -A matched_params
-
-    # Check for single dash (-*) or double dash (--*) parameters
-    # handling both short-form (-*) and long-form (--*) dash-based parameters.
-    for key in "${!required_params[@]}"; do
-        if [[ -n "${user_params[--${required_params[$key]}]}" ]]; then
-            matched_params["--${required_params[$key]}"]="${user_params[--${required_params[$key]}]}"
-        fi
-
-        if [[ -n "${user_params[-$key]}" ]]; then
-            matched_params["-$key"]="${user_params[-$key]}"
-        fi
-    done
-
-    # TODO: Replace print_params with a function that formats the output as needed
-    # For now, just print the matched parameters
-    # print_params matched_params
-    # Convert associative array into space-separated key=value pairs
-    serialize_user_params $(print_params matched_params)
-
-}
-
 serialize_user_params() {
     local -A params
     local processed_keys=()
@@ -272,7 +143,6 @@ serialize_user_params() {
     echo "${result% }"
 }
 
-
 # Function to replace placeholders in a JSON template and output the result directly
 replace_json_values() {
     if [ "$#" -lt 2 ]; then
@@ -298,78 +168,4 @@ replace_json_values() {
 
     # Output modified JSON
     echo "$json_content"
-}
-
-
-# Older version of the function for backward compatibility
-serialize_user_params_v0_1() {
-    local -A params 
-    while [[ "$1" != "" ]]; do
-        if [[ "$1" == --* || "$1" == -* ]]; then
-            params["$1"]=$2
-            shift 2
-        else
-            # Continue silently for unknown parameters
-            shift
-            continue
-        fi
-    done
-    
-    echo "${params[@]}"
-}
-
-replace_string_values_example() {
-    local json_string="$1"
-    local -A params=$2
-
-    # Iterate through the associative array and replace placeholders in the JSON string
-    for key in "${!params[@]}"; do
-        json_string="${json_string//\{$key\}/${params[$key]}}"
-    done
-
-    echo "$json_string"
-}
-
-serialize_user_params__bug_has_dashes() {
-    local -A params 
-    local result=""
-
-    while [[ "$1" != "" ]]; do
-        if [[ "$1" == --* || "$1" == -* ]]; then
-            params["$1"]=$2
-            shift 2
-        else
-            # Continue silently for unknown parameters
-            shift
-            continue
-        fi
-    done
-    
-    # Convert associative array into space-separated key=value pairs
-    for key in "${!params[@]}"; do
-        result+="${key#-}=${params[$key]} "
-    done
-
-    echo "$result"
-}
-
-filter_params_v0_2() {
-    local -A user_params=$1
-    local -A required_params=$2
-    local -A optional_params=$3
-    local -A matched_params
-
-    # Check for single dash (-*) or double dash (--*) parameters
-    # handling both short-form (-*) and long-form (--*) dash-based parameters.
-    for key in "${!required_params[@]}"; do
-        if [[ -n "${user_params[--${required_params[$key]}]}" ]]; then
-            matched_params["--${required_params[$key]}"]="${user_params[--${required_params[$key]}]}"
-        fi
-
-        if [[ -n "${user_params[-$key]}" ]]; then
-            matched_params["-$key"]="${user_params[-$key]}"
-        fi
-    done
-
-    print_params matched_params
 }
