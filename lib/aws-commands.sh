@@ -5,6 +5,24 @@ source "$DIR/functions.sh"
 
 # Function to create an S3 bucket using JSON input
 create_s3_bucket() {
+    
+  if [ "$#" -lt 2 ]; then
+      echo "Usage: create_s3_bucket <template_file> <BucketName>"
+      return 1
+  fi
+
+  fetch_user_params "$@"
+
+  local template_file=$1
+  local bucket_name=$2
+
+  aws s3api create-bucket --cli-input-json "$(replace_json_values "$template_file" BucketName="$bucket_name")"
+
+  echo "S3 bucket '$bucket_name' created successfully!"
+  return 0
+}
+
+create_s3_bucket_simple() {
     if [ "$#" -lt 2 ]; then
         echo "Usage: create_s3_bucket <template_file> <BucketName>"
         return 1
