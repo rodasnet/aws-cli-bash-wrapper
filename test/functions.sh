@@ -153,7 +153,7 @@ library_test_function_fetch_user_params() {
 
 debug_library_test_function_filter_params() {
     # Simulated user input (space-separated format)
-    user_params="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
+    user_params="--json input.json --id 123 --otheroption other.json --verbose --dry-run false"
 
     # Required & optional parameters (Boolean flags explicitly marked)
     required_params="i=id j=json"

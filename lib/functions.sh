@@ -107,7 +107,7 @@ fetch_user_params_v0_01() {
 filter_params() {
     local user_params="$1"  # User input as space-separated key-value pairs
     local required_params="$2"  # Expected format: "i=id j=json"
-    local optional_params="$3"  # Expected format: "p=profile o=otheroption verbose=boolean dry-run=boolean"
+    local optional_params="$3"  # Expected format: "p=profile o=otheroption dry-run=boolean"
 
     local -A matched_params
     local key value
@@ -120,8 +120,19 @@ filter_params() {
 
         if [[ "$value" == "boolean" ]]; then
             # Ensure Boolean flags only use double-dash prefix
-            if [[ "$user_params" == *"--$key"* ]]; then
+            if [[ "$user_params" == *"--$key "* ]]; then
+                bool_value="${user_params##*--$key }"
+                bool_value="${bool_value%% *}"  # Extract potential Boolean value
+
+                # If "--dry-run false" is provided, omit it entirely
+                if [[ "$key" == "dry-run" && "$bool_value" == "false" ]]; then
+                    continue
+                fi
+
+                # Otherwise, treat it as a standard Boolean flag
                 boolean_flags+=("--$key")
+            elif [[ "$user_params" == *"--$key"* ]]; then
+                boolean_flags+=("--$key")  # Default to true if flag is present without a value
             fi
         else
             # Handle key-value pairs normally
