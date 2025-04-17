@@ -153,11 +153,11 @@ library_test_function_fetch_user_params() {
 
 debug_library_test_function_filter_params() {
     # Simulated user input (space-separated format)
-    user_params="--json input.json --id 123 --otheroption other.json --verbose --dry-run false"
+    user_params="--explicit-run true --json input.json --id 123 --otheroption other.json --verbose --dry-run false"
 
     # Required & optional parameters (Boolean flags explicitly marked)
     required_params="i=id j=json"
-    optional_params="p=profile o=otheroption verbose=boolean dry-run=boolean"
+    optional_params="p=profile o=otheroption verbose=boolean dry-run=boolean explicit-run=boolean"
 
     # Call function
     filtered_output=$(filter_params "$user_params" "$required_params" "$optional_params")
@@ -172,12 +172,12 @@ library_test_function_filter_params() {
     echo "Testing filter_params..."
 
     # Define test cases
-    local user_params="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
+    local user_params="--json input.json --id 123 --otheroption other.json --verbose --dry-run false"
     local required_params="i=id j=json"
-    local optional_params="p=profile o=otheroption v=verbose d=dry-run"
+    local optional_params="p=profile o=otheroption verbose=boolean dry-run=boolean"
 
-    # Expected output values (Boolean flags at the end, without "true")
-    local expected_output="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
+    # Expected output values
+    local expected_output="--json input.json --id 123 --otheroption other.json --verbose"
 
     # Run function and capture output
     local actual_output
@@ -188,6 +188,18 @@ library_test_function_filter_params() {
         echo "Test passed!"
     else
         echo "Test failed: Expected '$expected_output', but got '$actual_output'"
+    fi
+
+    # Additional test: Ensure dry-run defaults to true if present without explicit "false"
+    user_params="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
+    expected_output="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
+
+    actual_output=$(filter_params "$user_params" "$required_params" "$optional_params")
+
+    if [[ "$actual_output" == "$expected_output" ]]; then
+        echo "Test passed for default true case!"
+    else
+        echo "Test failed for default true case: Expected '$expected_output', but got '$actual_output'"
     fi
 }
 
