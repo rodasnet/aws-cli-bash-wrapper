@@ -155,9 +155,9 @@ debug_library_test_function_filter_params() {
     # Simulated user input (space-separated format)
     user_params="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
 
-    # Required & optional parameters (optional includes Boolean flags)
+    # Required & optional parameters (Boolean flags explicitly marked)
     required_params="i=id j=json"
-    optional_params="p=profile o=otheroption v=verbose d=dry-run"
+    optional_params="p=profile o=otheroption verbose=boolean dry-run=boolean"
 
     # Call function
     filtered_output=$(filter_params "$user_params" "$required_params" "$optional_params")
