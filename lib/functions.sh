@@ -51,27 +51,6 @@ filter_params() {
     done
 }
 
-filter_params_v0_2() {
-    local -A user_params=$1
-    local -A required_params=$2
-    local -A optional_params=$3
-    local -A matched_params
-
-    # Check for single dash (-*) or double dash (--*) parameters
-    # handling both short-form (-*) and long-form (--*) dash-based parameters.
-    for key in "${!required_params[@]}"; do
-        if [[ -n "${user_params[--${required_params[$key]}]}" ]]; then
-            matched_params["--${required_params[$key]}"]="${user_params[--${required_params[$key]}]}"
-        fi
-
-        if [[ -n "${user_params[-$key]}" ]]; then
-            matched_params["-$key"]="${user_params[-$key]}"
-        fi
-    done
-
-    print_params matched_params
-}
-
 serialize_user_params() {
     local -A params
     local processed_keys=()
@@ -105,56 +84,6 @@ serialize_user_params() {
     echo "${result% }"
 }
 
-serialize_user_params__bug_has_dashes() {
-    local -A params 
-    local result=""
-
-    while [[ "$1" != "" ]]; do
-        if [[ "$1" == --* || "$1" == -* ]]; then
-            params["$1"]=$2
-            shift 2
-        else
-            # Continue silently for unknown parameters
-            shift
-            continue
-        fi
-    done
-    
-    # Convert associative array into space-separated key=value pairs
-    for key in "${!params[@]}"; do
-        result+="${key#-}=${params[$key]} "
-    done
-
-    echo "$result"
-}
-
-serialize_user_params_v0_1() {
-    local -A params 
-    while [[ "$1" != "" ]]; do
-        if [[ "$1" == --* || "$1" == -* ]]; then
-            params["$1"]=$2
-            shift 2
-        else
-            # Continue silently for unknown parameters
-            shift
-            continue
-        fi
-    done
-    
-    echo "${params[@]}"
-}
-
-replace_string_values_example() {
-    local json_string="$1"
-    local -A params=$2
-
-    # Iterate through the associative array and replace placeholders in the JSON string
-    for key in "${!params[@]}"; do
-        json_string="${json_string//\{$key\}/${params[$key]}}"
-    done
-
-    echo "$json_string"
-}
 
 # Function to replace placeholders in a JSON template and output the result directly
 replace_json_values() {
@@ -184,3 +113,75 @@ replace_json_values() {
 }
 
 
+# Older version of the function for backward compatibility
+serialize_user_params_v0_1() {
+    local -A params 
+    while [[ "$1" != "" ]]; do
+        if [[ "$1" == --* || "$1" == -* ]]; then
+            params["$1"]=$2
+            shift 2
+        else
+            # Continue silently for unknown parameters
+            shift
+            continue
+        fi
+    done
+    
+    echo "${params[@]}"
+}
+
+replace_string_values_example() {
+    local json_string="$1"
+    local -A params=$2
+
+    # Iterate through the associative array and replace placeholders in the JSON string
+    for key in "${!params[@]}"; do
+        json_string="${json_string//\{$key\}/${params[$key]}}"
+    done
+
+    echo "$json_string"
+}
+
+serialize_user_params__bug_has_dashes() {
+    local -A params 
+    local result=""
+
+    while [[ "$1" != "" ]]; do
+        if [[ "$1" == --* || "$1" == -* ]]; then
+            params["$1"]=$2
+            shift 2
+        else
+            # Continue silently for unknown parameters
+            shift
+            continue
+        fi
+    done
+    
+    # Convert associative array into space-separated key=value pairs
+    for key in "${!params[@]}"; do
+        result+="${key#-}=${params[$key]} "
+    done
+
+    echo "$result"
+}
+
+filter_params_v0_2() {
+    local -A user_params=$1
+    local -A required_params=$2
+    local -A optional_params=$3
+    local -A matched_params
+
+    # Check for single dash (-*) or double dash (--*) parameters
+    # handling both short-form (-*) and long-form (--*) dash-based parameters.
+    for key in "${!required_params[@]}"; do
+        if [[ -n "${user_params[--${required_params[$key]}]}" ]]; then
+            matched_params["--${required_params[$key]}"]="${user_params[--${required_params[$key]}]}"
+        fi
+
+        if [[ -n "${user_params[-$key]}" ]]; then
+            matched_params["-$key"]="${user_params[-$key]}"
+        fi
+    done
+
+    print_params matched_params
+}
