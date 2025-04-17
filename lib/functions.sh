@@ -126,11 +126,8 @@ filter_params() {
     # For now, just print the matched parameters
     # print_params matched_params
     # Convert associative array into space-separated key=value pairs
-    serialize_user_params
-    # Iterate through the array and format key-value pairs in a single line
-    for key in "${!matched_params[@]}"; do
-        echo -n "$key ${matched_params[$key]} "
-    done
+    serialize_user_params $(print_params matched_params)
+
 }
 
 serialize_user_params() {
