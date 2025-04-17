@@ -165,6 +165,11 @@ debug_library_test_function_filter_params() {
     # Display results
     echo "Filtered Parameters: $filtered_output"
 }
+Test failed: Expected 
+'--json input.json --id 123 --otheroption other.json --verbose true --dry-run true', 
+but got 
+'--json input.json --verbose --dry-run --id 123 --dry-run true --otheroption other.json'   
+
 
 library_test_function_filter_params() {
     echo "Testing filter_params..."
@@ -174,8 +179,8 @@ library_test_function_filter_params() {
     local required_params="i=id j=json"
     local optional_params="p=profile o=otheroption v=verbose d=dry-run"
 
-    # Expected output values
-    local expected_output="--json input.json --id 123 --otheroption other.json --verbose true --dry-run true"
+    # Expected output values (Boolean flags at the end, without "true")
+    local expected_output="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
 
     # Run function and capture output
     local actual_output
@@ -188,7 +193,6 @@ library_test_function_filter_params() {
         echo "Test failed: Expected '$expected_output', but got '$actual_output'"
     fi
 }
-
 
 library_test_function_filter_params_v0_01() {
     echo "Testing filter_params..."

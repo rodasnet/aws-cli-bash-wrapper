@@ -110,6 +110,7 @@ filter_params() {
     local optional_params="$3"  # Expected format: "p=profile o=otheroption"
     local -A matched_params
     local key value
+    local boolean_flags=()  # Store boolean flags separately
 
     # Parse required and optional parameters
     for entry in $required_params $optional_params; do
@@ -121,15 +122,20 @@ filter_params() {
             matched_params["--$value"]="${user_params##*--$value }"
             matched_params["--$value"]="${matched_params["--$value"]%% *}"  # Extract correct value
         elif [[ "$user_params" == *"--$value"* ]]; then
-            # Assign "true" for Boolean flags (parameters present without explicit value)
-            matched_params["--$value"]="true"
+            # Boolean flag detected—store it separately
+            boolean_flags+=("--$value")
         fi
     done
 
-    # Convert associative array into space-separated key-value pairs
+    # Convert associative array into space-separated key=value pairs
     local result=""
     for key in "${!matched_params[@]}"; do
         result+="$key ${matched_params[$key]} "
+    done
+
+    # Append Boolean flags at the end (without assigning "true")
+    for flag in "${boolean_flags[@]}"; do
+        result+="$flag "
     done
 
     # Trim trailing space before returning output
