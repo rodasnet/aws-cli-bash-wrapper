@@ -43,7 +43,12 @@ filter_params() {
 
     # TODO: Replace print_params with a function that formats the output as needed
     # For now, just print the matched parameters
-    print_params matched_params
+    # print_params matched_params
+
+    # Iterate through the array and format key-value pairs in a single line
+    for key in "${!matched_params[@]}"; do
+        echo -n "$key ${matched_params[$key]} "
+    done
 }
 
 filter_params_v0_2() {
@@ -68,6 +73,29 @@ filter_params_v0_2() {
 }
 
 serialize_user_params() {
+    local -A params 
+    local result=""
+
+    while [[ "$1" != "" ]]; do
+        if [[ "$1" == --* || "$1" == -* ]]; then
+            params["$1"]=$2
+            shift 2
+        else
+            # Continue silently for unknown parameters
+            shift
+            continue
+        fi
+    done
+    
+    # Convert associative array into space-separated key=value pairs
+    for key in "${!params[@]}"; do
+        result+="${key#-}=${params[$key]} "
+    done
+
+    echo "$result"
+}
+
+serialize_user_params_v0_1() {
     local -A params 
     while [[ "$1" != "" ]]; do
         if [[ "$1" == --* || "$1" == -* ]]; then
