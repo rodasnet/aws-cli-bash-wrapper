@@ -7,7 +7,48 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # These functions are used to test the functionality of the library methods
 # and ensure that they work as expected.
 # They are not meant to be run directly, but rather called from the main script.
+library_test_replace_json_values() {
+    echo "Testing replace_json_values..."
 
+    # Create a temporary JSON template
+    local json_template="test_template.json"
+    cat <<EOF > "$json_template"
+{
+    "name": "{{name}}",
+    "age": "{{age}}",
+    "city": "{{city}}"
+}
+EOF
+
+    # Define expected output without leading spaces
+    local expected_output='{
+    "name": "Daniel",
+    "age": "30",
+    "city": "San Francisco"
+}'
+
+    # Run function with sample replacements
+    local actual_output
+    actual_output=$(replace_json_values "$json_template" "name=Daniel" "age=30" "city=San Francisco")
+
+    # Normalize whitespace before comparison
+    expected_output=$(echo "$expected_output" | sed -E 's/^[[:space:]]+//g')
+    actual_output=$(echo "$actual_output" | sed -E 's/^[[:space:]]+//g')
+
+    # Validate results
+    if [[ "$actual_output" == "$expected_output" ]]; then
+        echo "✅ Test Passed: JSON values replaced correctly!"
+    else
+        echo "❌ Test Failed: Expected output differs from actual output!"
+        echo "Expected:"
+        echo "$expected_output"
+        echo "Got:"
+        echo "$actual_output"
+    fi
+
+    # Clean up temporary files
+    rm -f "$json_template"
+}
 
 library_test_function_serialize_user_params() {
     echo "Testing serialize_user_params..."
