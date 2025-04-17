@@ -151,8 +151,46 @@ library_test_function_fetch_user_params() {
     fi
 }
 
-
 library_test_function_filter_params() {
+    echo "Testing filter_params..."
+
+    local -A required_params=( ["i"]="id" ["j"]="json" )
+    local -A optional_params=( ["p"]="profile" ["o"]="otheroption" )
+    local user_params="--json input.json --id 123 --otheroption other.json --profile default"
+
+    # Expected output values
+    local expected_required="id=123 json=input.json"
+    local expected_optional="--profile default otheroption=other.json"
+
+    # Run function and capture output properly
+    output=$(filter_params "$user_params" required_params optional_params)
+
+    # Extract values from function output
+    local actual_required
+    local actual_optional
+    if [[ "$output" =~ id=([0-9]+)\ json=([^ ]+) ]]; then
+        actual_required="id=${BASH_REMATCH[1]} json=${BASH_REMATCH[2]}"
+    fi
+    if [[ "$output" =~ otheroption=([^ ]+) ]]; then
+        actual_optional="otheroption=${BASH_REMATCH[1]}"
+    fi
+
+    # Validate required parameters
+    if [[ "$actual_required" == "$expected_required" ]]; then
+        echo "Required parameters test passed"
+    else
+        echo "Required parameters test failed: Expected '$expected_required', but got '$actual_required'"
+    fi
+
+    # Validate optional parameters
+    if [[ "$actual_optional" == "$expected_optional" ]]; then
+        echo "Optional parameters test passed"
+    else
+        echo "Optional parameters test failed: Expected '$expected_optional', but got '$actual_optional'"
+    fi
+}
+
+library_test_function_filter_params_v0_01() {
     echo "Testing filter_params..."
 
     local -A required_params=( ["i"]="id" ["j"]="json" ["r"]="required" )
