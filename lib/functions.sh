@@ -107,19 +107,19 @@ fetch_user_params_v0_01() {
 filter_params() {
     local user_params="$1"  # User input as space-separated key-value pairs
     local required_params="$2"  # Expected format: "i=id j=json"
-    local optional_params="$3"  # Expected format: "p=profile o=otheroption dry-run=boolean"
+    local optional_params="$3"  # Expected format: "p=profile o=otheroption verbose=boolean dry-run=boolean"
 
     local -A matched_params
     local key value
-    local boolean_flags=()  # Store Boolean flags separately
-
-    # Process required and optional parameters
+    local boolean_flags=()
+    
+    # Expand short-form parameters into their long-form equivalents
     for entry in $required_params $optional_params; do
-        key="${entry%%=*}"   # Extract short-name key (e.g., "p")
-        value="${entry#*=}"   # Extract corresponding full parameter name (e.g., "profile" or "boolean")
+        key="${entry%%=*}"   # Extract short-name key (e.g., "j")
+        value="${entry#*=}"   # Extract corresponding full parameter name (e.g., "json" or "boolean")
 
         if [[ "$value" == "boolean" ]]; then
-            # Ensure Boolean flags only use double-dash prefix
+            # Handle Boolean flags, ensuring only double-dash flags are allowed
             if [[ "$user_params" == *"--$key "* ]]; then
                 bool_value="${user_params##*--$key }"
                 bool_value="${bool_value%% *}"  # Extract potential Boolean value
@@ -129,15 +129,14 @@ filter_params() {
                     continue
                 fi
 
-                # Otherwise, treat it as a standard Boolean flag
-                boolean_flags+=("--$key")
-            elif [[ "$user_params" == *"--$key"* ]]; then
                 boolean_flags+=("--$key")  # Default to true if flag is present without a value
+            elif [[ "$user_params" == *"--$key"* ]]; then
+                boolean_flags+=("--$key")
             fi
         else
-            # Handle key-value pairs normally
-            if [[ "$user_params" == *"--$value "* ]]; then
-                matched_params["--$value"]="${user_params##*--$value }"
+            # Handle both long-form (--json) and short-form (-j) parameters
+            if [[ "$user_params" == *"--$value "* || "$user_params" == *"-$key "* ]]; then
+                matched_params["--$value"]="${user_params##*-$key }"
                 matched_params["--$value"]="${matched_params["--$value"]%% *}"  # Extract correct value
             fi
         fi
