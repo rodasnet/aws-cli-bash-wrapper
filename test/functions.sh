@@ -49,6 +49,7 @@ library_test_function_serialize_user_params() {
     fi
 }
 
+# TODO: Refactor this test to follow unit testing principles
 library_test_function_replace_json_values() {
     echo "Running test test_replace_json_values..."
 
@@ -106,7 +107,94 @@ library_test_function_filter_params_v0_3_copilot() {
     echo "${filtered_params[@]}"
 }
 
+library_test_function_fetch_user_params() {
+    echo "Testing fetch_user_params..."
+
+    # Define test cases
+    local input1="--id 123 --json input.json --profile user1"
+    local expected1="id=123 json=input.json profile=user1"
+
+    local input2="--name Daniel --age 30 --city Tokyo"
+    local expected2="name=Daniel age=30 city=Tokyo"
+
+    local input3="--option value --flag --another 42"
+    local expected3="option=value flag=true another=42"
+
+    # Mock print_params to capture output
+    print_params() {
+        local -A params="$1"
+        local result=""
+
+        for key in "${!params[@]}"; do
+            clean_key="${key#--}"
+            clean_key="${clean_key#-}"
+            result+="${clean_key}=${params[$key]} "
+        done
+
+        echo "${result% }"
+    }
+
+    # Run function and capture output
+    local output1=$(fetch_user_params $input1)
+    local output2=$(fetch_user_params $input2)
+    local output3=$(fetch_user_params $input3)
+
+    # Validate results
+    if [[ "$output1" == "$expected1" ]]; then
+        echo "Test 1 passed"
+    else
+        echo "Test 1 failed: Expected '$expected1', but got '$output1'"
+    fi
+
+    if [[ "$output2" == "$expected2" ]]; then
+        echo "Test 2 passed"
+    else
+        echo "Test 2 failed: Expected '$expected2', but got '$output2'"
+    fi
+
+    if [[ "$output3" == "$expected3" ]]; then
+        echo "Test 3 passed"
+    else
+        echo "Test 3 failed: Expected '$expected3', but got '$output3'"
+    fi
+}
+
 library_test_function_filter_params() {
+    echo "Testing filter_params..."
+
+    local -A required_params=( ["i"]="id" ["j"]="json" ["r"]="required" )
+    local -A optional_params=( ["p"]="profile" ["o"]="otheroption" )
+    local user_params="--json input.json --id 123 --otheroption other.json"
+    local -A filtered_params
+
+    # Expected output values
+    local expected_required="id=123 json=input.json"
+    local expected_optional="otheroption=other.json"
+
+    # Run function and capture output
+    filter_params "$user_params" required_params optional_params
+
+    local actual_required="${filtered_params[id]}=${filtered_params[json]}"
+    local actual_optional="${filtered_params[otheroption]}"
+
+    # Validate required parameters
+    if [[ "$actual_required" == "$expected_required" ]]; then
+        echo "Required parameters test passed"
+    else
+        echo "Required parameters test failed: Expected '$expected_required', but got '$actual_required'"
+    fi
+
+    # Validate optional parameters
+    if [[ "$actual_optional" == "$expected_optional" ]]; then
+        echo "Optional parameters test passed"
+    else
+        echo "Optional parameters test failed: Expected '$expected_optional', but got '$actual_optional'"
+    fi
+}
+
+
+
+library_test_function_filter_params_v0_1_copy1() {
 
     local -A required_params=( ["i"]="id" ["j"]="json" ["r"]="required" ) # map of required parameters
     local -A optional_params=( ["p"]="profile" ["o"]="otheroption" ) # map of optional parameters
@@ -120,48 +208,3 @@ library_test_function_filter_params() {
     echo "${filtered_params[@]}"
 }
 
-library_test_function_fetch_user_paramsV2 () {
-    echo "Testing fetch_user_paramsV2..."
-    fetch_user_paramsV2 "$@"
-}
-
-
-library_test_function_fetch_user_params() {
-    echo "Testing library_test_method_fetch_user_params..."
-    fetch_user_params "$@"
-}
-
-
-library_test_function_fetch_user_params_and_filter_params() {
-
-    local -A required_params=( ["i"]="id" ["j"]="json" ) # map of required parameters
-    local -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
-
-    local user_params=$(fetch_user_params "$@")
-    # user_params is a string of key-value pairs 
-    # e.g. "id=123 json=input.json profile=default other-option=other.json"
-
-    filter_params required_params optional_params user_params
-    # business_logic1 filtered_params
-}
-
-library_test_function_fetch_user_params_and_serialize_user_params() {
-
-    local user_params=$(fetch_user_params "$@")
-    # user_params is a string of key-value pairs 
-    # e.g. "id=123 json=input.json profile=default other-option=other.json"
-
-    serialize_user_params "$user_params"
-}
-
-# library_test_methods_fetch_user_params_and_filter_params() {
-
-#     declare -A required_params=( ["i"]="id" ["j"]="json" ) # map of required parameters
-#     declare -A optional_params=( ["p"]="profile" ["o"]="other-option" ) # map of optional parameters
-
-#     fetch_user_params "$@" 
-#     filter_params required_params optional_params user_params
-#     business_logic1 filtered_params
-# }
-
-business_logic1() { echo "Business logic 1 executed with params: $@"; }
