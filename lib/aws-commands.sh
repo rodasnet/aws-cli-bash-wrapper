@@ -9,7 +9,7 @@ create_s3_bucket() {
     
     # Extract parameters using your CLI library
     user_params=$(fetch_user_params "$@")
-    valid_params=$(filter_params "$user_params" "n=bucket-name" "template-file=$template_file")
+    valid_params=$(filter_params "$user_params" "n=bucket-name p=profile" "template-file=$template_file")
 
     # Ensure bucket name is provided
     bucket_name="${valid_params[--bucket-name]}"
