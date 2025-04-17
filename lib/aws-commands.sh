@@ -2,25 +2,44 @@
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$DIR/functions.sh"
+LIB_TEMPLATES_PATH="$DIR/lib/templates/s3.json"
 
-# Function to create an S3 bucket using JSON input
 create_s3_bucket() {
+    # Default template file path
+    local template_file="$LIB_TEMPLATES_PATH"
+    local bucket_name=""
     
-  if [ "$#" -lt 2 ]; then
-      echo "Usage: create_s3_bucket <template_file> <BucketName>"
-      return 1
-  fi
+    # Extract parameters using your CLI library
+    user_params=$(fetch_user_params "$@")
+    valid_params=$(filter_params "$user_params" "n=bucket-name" "template-file=$template_file")
 
-  fetch_user_params "$@"
+    # Ensure bucket name is provided
+    bucket_name="${valid_params[--bucket-name]}"
+    if [[ -z "$bucket_name" ]]; then
+        echo "Error: Bucket name must be specified using '-n' or '--bucket-name'." >&2
+        return 1
+    fi
 
-  local template_file=$1
-  local bucket_name=$2
+    # Use provided template file if specified
+    if [[ -n "${valid_params[--template-file]}" ]]; then
+        template_file="${valid_params[--template-file]}"
+    fi
 
-  aws s3api create-bucket --cli-input-json "$(replace_json_values "$template_file" BucketName="$bucket_name")"
+    # Validate template file existence
+    if [[ ! -f "$template_file" ]]; then
+        echo "Error: JSON template file '$template_file' not found." >&2
+        return 1
+    fi
 
-  echo "S3 bucket '$bucket_name' created successfully!"
-  return 0
+    # Generate final JSON input
+    resolved_json=$(replace_json_values "$template_file" BucketName="$bucket_name")
+
+    # Execute AWS CLI command
+    aws s3api create-bucket --cli-input-json "$resolved_json" && \
+    echo "S3 bucket '$bucket_name' created successfully!" || \
+    echo "Error: Failed to create S3 bucket '$bucket_name'." >&2
 }
+
 
 create_s3_bucket_simple() {
     if [ "$#" -lt 2 ]; then
