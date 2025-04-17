@@ -73,6 +73,30 @@ filter_params_v0_2() {
 }
 
 serialize_user_params() {
+    local -A params
+    local result=""
+
+    while [[ "$1" != "" ]]; do
+        if [[ "$1" == --* || "$1" == -* ]]; then
+            params["$1"]="$2"
+            shift 2
+        else
+            shift
+            continue
+        fi
+    done
+
+    # Sort keys and properly strip hyphens before formatting output
+    for key in $(printf "%s\n" "${!params[@]}" | sort); do
+        clean_key="${key#--}"
+        clean_key="${clean_key#-}"
+        result+="${clean_key}=${params[$key]} "
+    done
+
+    echo "$result"
+}
+
+serialize_user_params__bug_has_dashes() {
     local -A params 
     local result=""
 
