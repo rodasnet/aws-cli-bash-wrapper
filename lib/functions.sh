@@ -134,6 +134,62 @@ filter_params() {
                 boolean_flags+=("--$key")
             fi
         else
+            # Handle both long-form (--json) and short-form (-j) parameters correctly
+            if [[ "$user_params" == *"--$value "* ]]; then
+                matched_params["--$value"]="${user_params##*--$value }"
+                matched_params["--$value"]="${matched_params["--$value"]%% *}"  # Extract correct value
+            elif [[ "$user_params" == *"-$key "* ]]; then
+                matched_params["--$value"]="${user_params##*-$key }"
+                matched_params["--$value"]="${matched_params["--$value"]%% *}"  # Extract correct value
+            fi
+        fi
+    done
+
+    # Convert associative array into space-separated key=value pairs
+    local result=""
+    for key in "${!matched_params[@]}"; do
+        result+="$key ${matched_params[$key]} "
+    done
+
+    # Append Boolean flags at the end
+    for flag in "${boolean_flags[@]}"; do
+        result+="$flag "
+    done
+
+    # Trim trailing space before returning output
+    echo "${result% }"
+}
+
+filter_params_v1_0_rc_1() {
+    local user_params="$1"  # User input as space-separated key-value pairs
+    local required_params="$2"  # Expected format: "i=id j=json"
+    local optional_params="$3"  # Expected format: "p=profile o=otheroption verbose=boolean dry-run=boolean"
+
+    local -A matched_params
+    local key value
+    local boolean_flags=()
+    
+    # Expand short-form parameters into their long-form equivalents
+    for entry in $required_params $optional_params; do
+        key="${entry%%=*}"   # Extract short-name key (e.g., "j")
+        value="${entry#*=}"   # Extract corresponding full parameter name (e.g., "json" or "boolean")
+
+        if [[ "$value" == "boolean" ]]; then
+            # Handle Boolean flags, ensuring only double-dash flags are allowed
+            if [[ "$user_params" == *"--$key "* ]]; then
+                bool_value="${user_params##*--$key }"
+                bool_value="${bool_value%% *}"  # Extract potential Boolean value
+
+                # If "--dry-run false" is provided, omit it entirely
+                if [[ "$key" == "dry-run" && "$bool_value" == "false" ]]; then
+                    continue
+                fi
+
+                boolean_flags+=("--$key")  # Default to true if flag is present without a value
+            elif [[ "$user_params" == *"--$key"* ]]; then
+                boolean_flags+=("--$key")
+            fi
+        else
             # Handle both long-form (--json) and short-form (-j) parameters
             if [[ "$user_params" == *"--$value "* || "$user_params" == *"-$key "* ]]; then
                 matched_params["--$value"]="${user_params##*-$key }"

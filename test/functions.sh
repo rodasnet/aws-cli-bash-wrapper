@@ -169,38 +169,31 @@ debug_library_test_function_filter_params() {
 
 
 library_test_function_filter_params() {
-    echo "Testing filter_params..."
+    echo "Running filter_params unit tests..."
 
-    # Define test cases with short-form parameters
-    local user_params="-j input.json -i 123 -o other.json --verbose --dry-run false"
-    local required_params="i=id j=json"
-    local optional_params="p=profile o=otheroption verbose=boolean dry-run=boolean"
+    # Define test cases
+    local test_cases=(
+        "--json input.json --id 123 --otheroption other.json --verbose --dry-run false|i=id j=json|p=profile o=otheroption verbose=boolean dry-run=boolean|--json input.json --id 123 --otheroption other.json --verbose"
+        "--json input.json --id 123 --otheroption other.json --verbose --dry-run|i=id j=json|p=profile o=otheroption verbose=boolean dry-run=boolean|--json input.json --id 123 --otheroption other.json --verbose --dry-run"
+        "-j input.json -i 123 -o other.json --verbose --dry-run|i=id j=json|p=profile o=otheroption verbose=boolean dry-run=boolean|--json input.json --id 123 --otheroption other.json --verbose --dry-run"
+        "-j input.json -i 123 -o other.json --verbose --dry-run false|i=id j=json|p=profile o=otheroption verbose=boolean dry-run=boolean|--json input.json --id 123 --otheroption other.json --verbose"
+    )
 
-    # Expected output values (short-form parameters mapped correctly)
-    local expected_output="--json input.json --id 123 --otheroption other.json --verbose"
+    # Run each test case
+    for test in "${test_cases[@]}"; do
+        IFS="|" read -r user_params required_params optional_params expected_output <<< "$test"
 
-    # Run function and capture output
-    local actual_output
-    actual_output=$(filter_params "$user_params" "$required_params" "$optional_params")
+        # Run function and capture output
+        local actual_output
+        actual_output=$(filter_params "$user_params" "$required_params" "$optional_params")
 
-    # Validate results
-    if [[ "$actual_output" == "$expected_output" ]]; then
-        echo "Test passed!"
-    else
-        echo "Test failed: Expected '$expected_output', but got '$actual_output'"
-    fi
-
-    # Additional test: Ensure dry-run defaults to true if present without explicit "false"
-    user_params="-j input.json -i 123 -o other.json --verbose --dry-run"
-    expected_output="--json input.json --id 123 --otheroption other.json --verbose --dry-run"
-
-    actual_output=$(filter_params "$user_params" "$required_params" "$optional_params")
-
-    if [[ "$actual_output" == "$expected_output" ]]; then
-        echo "Test passed for default true case!"
-    else
-        echo "Test failed for default true case: Expected '$expected_output', but got '$actual_output'"
-    fi
+        # Validate results
+        if [[ "$actual_output" == "$expected_output" ]]; then
+            echo "✅ Test Passed: $user_params"
+        else
+            echo "❌ Test Failed: Expected '$expected_output', but got '$actual_output'"
+        fi
+    done
 }
 
 library_test_function_filter_params_v0_01() {
