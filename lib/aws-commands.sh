@@ -13,14 +13,15 @@ create-s3-bucket() {
     
     # Extract parameters using your CLI library
     user_params=$(fetch_user_params "$@")
-    valid_params=$(filter_params "$user_params" "n=name p=profile" "t=template-file dry-run=boolean")
+    valid_params=$(filter_params "$user_params" "n=name p=profile" "r=region t=template-file dry-run=boolean")
 
     bucket_name=$(get_param_value "n=name")
     profile_selection=$(get_kv_pair "p=profile")
     template_file=$(get_kv_pair "t=template-file")
-    region=$(get_param_value_or_default "r=region" "us-east-2")
+    region=$(get_kv_pair "r=region")
+    dry_run=$(get_kv_pair "dry-run=boolean")
 
-    invoke_cli_command "aws s3api create-bucket" "--bucket $bucket_name $template_file --region $region $profile_selection"
+    invoke_cli_command "aws s3api create-bucket" "--bucket $bucket_name $template_file $dry_run $region $profile_selection"
 
 
     # Validate template file existence
