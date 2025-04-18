@@ -1,4 +1,18 @@
-echo "BASH CLI Wrapper Functions loaded into memory."
+invoke_cli_command() {
+    local command="$1"
+
+    local params="$2"
+
+    # Check if the command is valid
+    if [[ -z "$command" ]]; then
+        echo "Error: No command provided." >&2
+        return 1
+    fi
+
+    # Execute the command with parameters
+    # eval "$command $params"
+    echo "$command $params"
+}
 
 get_optional_param() {
     local param_name="$1"
