@@ -3,7 +3,7 @@ source "$DIR/functions.sh"
 LIB_TEMPLATES_PATH="$DIR/templates/s3.json"
 echo "AWS CLI Wrapper Functions loaded into memory."
 
-# declare -A valid_params
+declare -A valid_params
 
 
 create_s3_bucket() {
@@ -14,17 +14,15 @@ create_s3_bucket() {
     
     # Extract parameters using your CLI library
     user_params=$(fetch_user_params "$@")
-    valid_params=$(filter_params "$user_params" "n=bucket-name p=profile" "template-file=$template_file")
-
-    echo "Valid Params: $valid_params"
-
-    # TODO: REfactor get_required_param to accept a string
-    # Valid Params: --bucket-name my-bucket-2 --profile default
-    # the previous line should be: assumtion was that valid_params was an array but is in fact a string
-    # get_required_param "--bucket-name" valid_params
-    get_required_param "--bucket-name" valid_params
+    valid_params=$(filter_params "$user_params" "n=bucket-name p=profile" "template-file=$template_file dry-run=boolean")
 
 
+    get_kv_pair "n=bucket-name"
+    get_kv_pair "p=profile"
+    get_kv_pair "dry-run=boolean"
+
+    get_param_value "n=bucket-name"
+    
     # get_required_param "--bucket-name"
 
     # Store input parameters into variables
