@@ -16,9 +16,9 @@ create_s3_bucket() {
     user_params=$(fetch_user_params "$@")
     valid_params=$(filter_params "$user_params" "n=bucket-name p=profile" "t=template-file dry-run=boolean")
 
-    # get_kv_pair "n=bucket-name"
-    # get_kv_pair "dry-run=boolean"
-    # get_param_value "n=bucket-name"
+    bucket_name=$(get_param_value "n=bucket-name")
+
+    echo  "aws s3api create-bucket --bucket $bucket_name --region us-east-1"
 
     # Store input parameters into variables
     # bucket_name=$(get_required_param "--bucket-name") || return 1
