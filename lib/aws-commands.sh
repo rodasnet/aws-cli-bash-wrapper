@@ -5,7 +5,7 @@ echo "AWS CLI Wrapper Functions loaded into memory."
 
 declare -A valid_params
 
-create-s3-bucket() {
+create-s3-bucket-using-json() {
 
     # Default template file path
     local template_file="$LIB_TEMPLATES_PATH"
@@ -41,6 +41,24 @@ create-s3-bucket() {
     # aws s3api create-bucket --cli-input-json "$resolved_json" && \
     # echo "S3 bucket '$bucket_name' created successfully!" || \
     # echo "Error: Failed to create S3 bucket '$bucket_name'." >&2
+}
+
+create-s3-bucket() {
+
+    local template_file="$LIB_TEMPLATES_PATH"
+    local bucket_name=""
+    
+    # Extract parameters using your CLI library
+    user_params=$(fetch_user_params "$@")
+    valid_params=$(filter_params "$user_params" "n=name p=profile" "r=region t=template-file dry-run=boolean")
+
+    bucket_name=$(get_param_value "n=name")
+    profile_selection=$(get_kv_pair "p=profile")
+    template_file=$(get_kv_pair "t=template-file")
+    region=$(get_kv_pair "r=region")
+    dry_run=$(get_kv_pair "dry-run=boolean")
+
+    invoke_cli_command "aws s3api create-bucket" "--bucket $bucket_name $template_file $dry_run $region $profile_selection"
 }
 
 create-s3-bucket_v0_1() {
