@@ -14,17 +14,6 @@ invoke_cli_command() {
     echo "$command $params"
 }
 
-get_optional_param() {
-    local param_name="$1"
-    local default_value="$2"
-
-    if [[ -n "${valid_params[$param_name]}" ]]; then
-        echo "${valid_params[$param_name]}"
-    else
-        echo "$default_value"
-    fi
-}
-
 get_param_value() {
     local param_name="$1"
     local kvpair=""
@@ -33,6 +22,21 @@ get_param_value() {
 
     # Extract only the value assuming the format "--key value"
     echo "${kvpair#* }"
+}
+
+get_param_value_or_default() {
+    local param_name="$1"
+    local default_value="$2"
+
+    # Check if the parameter is set in the valid_params
+    local kvpair=$(get_kv_pair "$param_name")
+
+    if [[ -z "$kvpair" ]]; then
+        echo "$default_value"
+    else
+        # Extract only the value assuming the format "--key value"
+        echo "${kvpair#* }"
+    fi
 }
 
 get_kv_pair() {
