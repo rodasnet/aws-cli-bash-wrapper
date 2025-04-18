@@ -2,7 +2,12 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$DIR/functions.sh"
 LIB_TEMPLATES_PATH="$DIR/templates/s3.json"
 echo "AWS CLI Wrapper Functions loaded into memory."
+
+# declare -A valid_params
+
+
 create_s3_bucket() {
+
     # Default template file path
     local template_file="$LIB_TEMPLATES_PATH"
     local bucket_name=""
@@ -11,31 +16,38 @@ create_s3_bucket() {
     user_params=$(fetch_user_params "$@")
     valid_params=$(filter_params "$user_params" "n=bucket-name p=profile" "template-file=$template_file")
 
-    # Ensure bucket name is provided
-    bucket_name="${valid_params[--bucket-name]}"
-    if [[ -z "$bucket_name" ]]; then
-        echo "Error: Bucket name must be specified using '-n' or '--bucket-name'." >&2
-        return 1
-    fi
+    echo "Valid Params: $valid_params"
 
-    # Use provided template file if specified
-    if [[ -n "${valid_params[--template-file]}" ]]; then
-        template_file="${valid_params[--template-file]}"
-    fi
+    # TODO: REfactor get_required_param to accept a string
+    # Valid Params: --bucket-name my-bucket-2 --profile default
+    # the previous line should be: assumtion was that valid_params was an array but is in fact a string
+    # get_required_param "--bucket-name" valid_params
+    get_required_param "--bucket-name" valid_params
+
+
+    # get_required_param "--bucket-name"
+
+    # Store input parameters into variables
+    # bucket_name=$(get_required_param "--bucket-name") || return 1
+  #  template_file=$(get_optional_param "--template-file" "")
 
     # Validate template file existence
-    if [[ ! -f "$template_file" ]]; then
-        echo "Error: JSON template file '$template_file' not found." >&2
-        return 1
-    fi
+    # if [[ ! -f "$template_file" ]]; then
+    #     echo "Error: JSON template file '$template_file' not found." >&2
+    #     return 1
+    # fi
 
     # Generate final JSON input
-    resolved_json=$(replace_json_values "$template_file" BucketName="$bucket_name")
+    # resolved_json=$(replace_json_values "$template_file" BucketName="$bucket_name")
 
-    # Execute AWS CLI command
-    aws s3api create-bucket --cli-input-json "$resolved_json" && \
-    echo "S3 bucket '$bucket_name' created successfully!" || \
-    echo "Error: Failed to create S3 bucket '$bucket_name'." >&2
+#    echo "Bucket Name: $bucket_name"
+#    echo "Template File: $template_file"
+
+
+    # # Execute AWS CLI command
+    # aws s3api create-bucket --cli-input-json "$resolved_json" && \
+    # echo "S3 bucket '$bucket_name' created successfully!" || \
+    # echo "Error: Failed to create S3 bucket '$bucket_name'." >&2
 }
 
 

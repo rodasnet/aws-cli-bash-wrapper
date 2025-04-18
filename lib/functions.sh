@@ -1,5 +1,30 @@
 echo "BASH CLI Wrapper Functions loaded into memory."
 
+get_optional_param() {
+    local param_name="$1"
+    local default_value="$2"
+
+    if [[ -n "${valid_params[$param_name]}" ]]; then
+        echo "${valid_params[$param_name]}"
+    else
+        echo "$default_value"
+    fi
+}
+
+get_required_param() {
+    local param_name="$1"
+    declare -n params_ref="$2"  # Reference valid_params array
+    
+    local param_value="${params_ref[$param_name]}"
+    
+    # if [[ -z "$param_value" ]]; then
+    #     echo "Error: '$param_name' must be specified." >&2
+    #     return 1
+    # fi
+    
+    echo "$param_value"
+}
+
 print_params() {
     local -n params_ref=$1
     local result=""

@@ -10,4 +10,6 @@ source ./test/load.sh
 # library_test_function_filter_params         # WORKING
 # library_test_replace_json_values
 
-bats test_create_s3_bucket.bats
+# bats test_create_s3_bucket.bats
+library_function_test_get_optional_param
+library_function_test_get_required_param

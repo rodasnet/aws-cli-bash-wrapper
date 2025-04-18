@@ -7,7 +7,62 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # These functions are used to test the functionality of the library methods
 # and ensure that they work as expected.
 # They are not meant to be run directly, but rather called from the main script.
-library_test_replace_json_values() {
+
+# library_test_function_get_param()
+#!/bin/bash
+
+# Load the functions
+source path/to/your/functions.sh
+
+# Test get_optional_param function
+library_function_test_get_optional_param() {
+    local -A valid_params
+    valid_params["--template-file"]="test-template.yaml"
+
+    # Test retrieving an existing optional parameter
+    template_file=$(get_optional_param "--template-file" "default-template.yaml")
+    if [[ "$template_file" == "test-template.yaml" ]]; then
+        echo "PASS: get_optional_param correctly retrieved template file"
+    else
+        echo "FAIL: get_optional_param did not retrieve template file correctly"
+        exit 1
+    fi
+
+    # Test retrieving a missing optional parameter with a default value
+    missing_param=$(get_optional_param "--non-existent-param" "default-value")
+    if [[ "$missing_param" == "default-value" ]]; then
+        echo "PASS: get_optional_param correctly returned default value"
+    else
+        echo "FAIL: get_optional_param did not return default value correctly"
+        exit 1
+    fi
+}
+
+# Test get_param function
+library_test_function_get_required_param() {
+    local -A valid_params
+    valid_params["--bucket-name"]="test-bucket"
+
+    # Test valid parameter retrieval
+    bucket_name=$(get_param "--bucket-name")
+    if [[ "$bucket_name" == "test-bucket" ]]; then
+        echo "PASS: get_param correctly retrieved bucket name"
+    else
+        echo "FAIL: get_param did not retrieve bucket name correctly"
+        exit 1
+    fi
+
+    # Test missing parameter
+    missing_param=$(get_param "--non-existent-param")
+    if [[ $? -ne 0 ]]; then
+        echo "PASS: get_param correctly handled missing parameter"
+    else
+        echo "FAIL: get_param did not handle missing parameter correctly"
+        exit 1
+    fi
+}
+
+library_test_function_replace_json_values() {
     echo "Testing replace_json_values..."
 
     # Create a temporary JSON template
