@@ -14,20 +14,16 @@ create_s3_bucket() {
     
     # Extract parameters using your CLI library
     user_params=$(fetch_user_params "$@")
-    valid_params=$(filter_params "$user_params" "n=bucket-name p=profile" "template-file=$template_file dry-run=boolean")
+    valid_params=$(filter_params "$user_params" "n=bucket-name p=profile" "t=template-file dry-run=boolean")
 
-
-    get_kv_pair "n=bucket-name"
-    get_kv_pair "p=profile"
-    get_kv_pair "dry-run=boolean"
-
-    get_param_value "n=bucket-name"
-    
-    # get_required_param "--bucket-name"
+    # get_kv_pair "n=bucket-name"
+    # get_kv_pair "dry-run=boolean"
+    # get_param_value "n=bucket-name"
 
     # Store input parameters into variables
     # bucket_name=$(get_required_param "--bucket-name") || return 1
-  #  template_file=$(get_optional_param "--template-file" "")
+
+    template_file=$(get_param_value "t=template-file" "")
 
     # Validate template file existence
     # if [[ ! -f "$template_file" ]]; then
