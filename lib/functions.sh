@@ -11,18 +11,22 @@ get_optional_param() {
     fi
 }
 
-get_required_param() {
+get_param_value() {
     local param_name="$1"
-    declare -n params_ref="$2"  # Reference valid_params array
+    local kvpair=""
     
-    local param_value="${params_ref[$param_name]}"
-    
-    # if [[ -z "$param_value" ]]; then
-    #     echo "Error: '$param_name' must be specified." >&2
-    #     return 1
-    # fi
-    
-    echo "$param_value"
+    kvpair=$(get_kv_pair "$param_name")
+
+    # Extract only the value assuming the format "--key value"
+    echo "${kvpair#* }"
+}
+
+get_kv_pair() {
+    local param_name="$1"
+
+    filtered_output=$(filter_params "$valid_params" "$param_name" "")
+
+    echo "$filtered_output"
 }
 
 print_params() {
