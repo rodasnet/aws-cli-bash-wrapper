@@ -20,7 +20,7 @@ create-s3-bucket() {
 
     invoke_cli_command "aws s3api create-bucket" "--bucket $bucket_name --region us-east-1 $profile_name"
 
-    template_file=$(get_param_value "t=template-file" "")
+    # template_file=$(get_param_value "t=template-file" "")
 
     # Validate template file existence
     # if [[ ! -f "$template_file" ]]; then
