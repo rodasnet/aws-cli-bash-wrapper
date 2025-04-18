@@ -16,11 +16,12 @@ create-s3-bucket() {
     valid_params=$(filter_params "$user_params" "n=name p=profile" "t=template-file dry-run=boolean")
 
     bucket_name=$(get_param_value "n=name")
-    profile_name=$(get_kv_pair "p=profile")
+    profile_selection=$(get_kv_pair "p=profile")
+    template_file=$(get_kv_pair "t=template-file")
+    region=$(get_param_value_or_default "r=region" "us-east-2")
 
-    invoke_cli_command "aws s3api create-bucket" "--bucket $bucket_name --region us-east-1 $profile_name"
+    invoke_cli_command "aws s3api create-bucket" "--bucket $bucket_name $template_file --region $region $profile_selection"
 
-    # template_file=$(get_param_value "t=template-file" "")
 
     # Validate template file existence
     # if [[ ! -f "$template_file" ]]; then
@@ -43,20 +44,21 @@ create-s3-bucket() {
 
 create-s3-bucket_v0_1() {
 
-    # Default template file path
     local template_file="$LIB_TEMPLATES_PATH"
     local bucket_name=""
     
     # Extract parameters using your CLI library
     user_params=$(fetch_user_params "$@")
-    valid_params=$(filter_params "$user_params" "n=name p=profile" "t=template-file dry-run=boolean")
+    valid_params=$(filter_params "$user_params" "n=name p=profile" "r=region t=template-file dry-run=boolean")
 
     bucket_name=$(get_param_value "n=name")
-    profile_name=$(get_kv_pair "p=profile")
+    profile_selection=$(get_kv_pair "p=profile")
+    template_file=$(get_kv_pair "t=template-file")
+    region=$(get_kv_pair "r=region")
+    dry_run=$(get_kv_pair "dry-run=boolean")
 
-    invoke_cli_command "aws s3api create-bucket" "--bucket $bucket_name --region us-east-1 $profile_name"
+    invoke_cli_command "aws s3api create-bucket" "--bucket $bucket_name $template_file $dry_run $region $profile_selection"
 }
-
 
 create_s3_bucket_simple() {
     if [ "$#" -lt 2 ]; then
