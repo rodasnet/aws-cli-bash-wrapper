@@ -41,6 +41,22 @@ create-s3-bucket() {
     # echo "Error: Failed to create S3 bucket '$bucket_name'." >&2
 }
 
+create-s3-bucket_v0_1() {
+
+    # Default template file path
+    local template_file="$LIB_TEMPLATES_PATH"
+    local bucket_name=""
+    
+    # Extract parameters using your CLI library
+    user_params=$(fetch_user_params "$@")
+    valid_params=$(filter_params "$user_params" "n=name p=profile" "t=template-file dry-run=boolean")
+
+    bucket_name=$(get_param_value "n=name")
+    profile_name=$(get_kv_pair "p=profile")
+
+    invoke_cli_command "aws s3api create-bucket" "--bucket $bucket_name --region us-east-1 $profile_name"
+}
+
 
 create_s3_bucket_simple() {
     if [ "$#" -lt 2 ]; then
