@@ -1,0 +1,25 @@
+{
+    "CatalogId": "{{CatalogId}}",
+    "Principal": {
+        "DataLakePrincipalIdentifier": "{{Principal}}"
+    },
+    "Resource": {
+        "LFTagPolicy": {
+            "CatalogId": "{{CatalogId}}",
+            "ResourceType": "DATABASE",
+            "Expression": [{
+                "TagKey": "usergroup",
+                "TagValues": [
+                    "analyst",
+                    "developer"
+                ]
+            }]
+        }
+    },
+    "Permissions": [
+        "ALL"
+    ],
+    "PermissionsWithGrantOption": [
+        "ALL"
+    ]
+}

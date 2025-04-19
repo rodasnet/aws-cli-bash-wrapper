@@ -13,6 +13,34 @@ grant-lf-permission-readonly() {
 
     # Extract parameters using your CLI library
     user_params=$(fetch_user_params "$@")
+    valid_params=$(filter_params "$user_params" "i=principal c=catalog-id" "p=profile r=region")
+
+    # Global CLI parameters
+    profile_selection=$(get_kv_pair "p=profile")
+    region=$(get_param_value_or_default "r=region" "us-west-1")
+
+    # Example boolean parameter
+    # dry_run=$(get_kv_pair "dry-run=boolean")
+
+    # Command specific parameters
+    catalog_id=$(get_param_value "c=catalog-id")
+    principal=$(get_param_value "p=principal")
+
+    # Bind parameters to JSON template    
+    json_config=$(replace_json_values "${template_path}${template_file}" CatalogId="$catalog_id" Principal="$principal" Region="$region")
+
+    # Invoke the AWS CLI command with the JSON config
+    invoke_cli_command "aws lakeformation grant-permissions" "--cli-input-json '$json_config' $profile_selection"
+}
+
+grant-lf-permission-writer() {
+
+    # Default template file path
+    local template_path="$LIB_TEMPLATES_PATH"
+    local template_file="lakeformation/permission-writer.json"
+
+    # Extract parameters using your CLI library
+    user_params=$(fetch_user_params "$@")
     valid_params=$(filter_params "$user_params" "p=principal c=catalog-id" "p=profile r=region")
 
     # Global CLI parameters
@@ -52,59 +80,64 @@ create-s3-bucket-using-internal-json() {
     invoke_cli_command "aws s3api create-bucket" "--cli-input-json '$json_config' $profile_selection"
 }
 
+print-sample-boolean() {
+
+    # Extract parameters using your CLI library
+    user_params=$(fetch_user_params "$@")
+    valid_params=$(filter_params "$user_params" "my-flag=boolean")
+
+    # Example boolean parameter
+    # command --my-bool-flag (implicit true)
+    bool_flag=$(get_kv_pair "my-flag=boolean")
+
+    echo "Printing boolean flag: $bool_flag"
+}
+
+print-parameter-raw() {
+    
+    local raw_parameters=$(fetch_user_params "$@")
+
+    echo "Printing raw user parameter: $raw_parameters"
+}
+
+print-parameter-filter() {
+
+    # Extract parameters using your CLI library
+    user_params=$(fetch_user_params "$@")
+    valid_params=$(filter_params "$user_params" "f=filtered")
+
+    # Example boolean parameter
+    # command --my-bool-flag (implicit true)
+    filtered_output=$(get_kv_pair "f=filtered")
+
+    echo "Printing all user parameter: $user_params"
+    echo "Printing filtered parameter: $filtered_output"
+}
+
 create-s3-bucket() {
 
-    local template_file="$LIB_TEMPLATES_PATH"
-    local bucket_name=""
-    
     # Extract parameters using your CLI library
     user_params=$(fetch_user_params "$@")
-    valid_params=$(filter_params "$user_params" "n=name p=profile" "r=region t=template-file dry-run=boolean")
+    valid_params=$(filter_params "$user_params" "n=name" "dry-run=boolean p=profile r=region")
 
-    bucket_name=$(get_param_value "n=name")
+    # Global CLI parameters
     profile_selection=$(get_kv_pair "p=profile")
-    template_file=$(get_kv_pair "t=template-file")
-    region=$(get_kv_pair "r=region")
-    dry_run=$(get_kv_pair "dry-run=boolean")
 
-    invoke_cli_command "aws s3api create-bucket" "--bucket $bucket_name $template_file $dry_run $region $profile_selection"
-}
+    # Get the region parameter or use a default value
+    region=$(get_param_value_or_default "r=region" "us-west-1 my-bool-flag=boolean")
 
-create-s3-bucket_v0_1() {
+    # Example boolean parameter
+    # command --my-bool-flag (implicit true) or --bool-flag true (explicit true)  or --bool-flag false (explicit false) 
+    bool_flag=$(get_kv_pair "my-bool-flag=boolean")
 
-    local template_file="$LIB_TEMPLATES_PATH"
-    local bucket_name=""
-    
-    # Extract parameters using your CLI library
-    user_params=$(fetch_user_params "$@")
-    valid_params=$(filter_params "$user_params" "n=name p=profile" "r=region t=template-file dry-run=boolean")
-
+    # Command specific parameters
     bucket_name=$(get_param_value "n=name")
-    profile_selection=$(get_kv_pair "p=profile")
-    template_file=$(get_kv_pair "t=template-file")
-    region=$(get_kv_pair "r=region")
-    dry_run=$(get_kv_pair "dry-run=boolean")
 
-    invoke_cli_command "aws s3api create-bucket" "--bucket $bucket_name $template_file $dry_run $region $profile_selection"
-}
-
-create_s3_bucket_simple() {
-    if [ "$#" -lt 2 ]; then
-        echo "Usage: create_s3_bucket <template_file> <BucketName>"
-        return 1
-    fi
-
-    local template_file=$1
-    local bucket_name=$2
-
-    aws s3api create-bucket --cli-input-json "$(replace_json_values "$template_file" BucketName="$bucket_name")"
-
-    echo "S3 bucket '$bucket_name' created successfully!"
-    return 0
+    invoke_cli_command "aws s3api create-bucket" "--bucket $bucket_name $region $profile_selection $bool_flag"
 }
 
 # Function to launch an EC2 instance without writing to disk
-launch_ec2_instance() {
+launch_ec2_json() {
 
     # Example usage
     # launch_ec2_instance my-template.json ami-1234567890abcdef0
