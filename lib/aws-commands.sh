@@ -1,15 +1,43 @@
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$DIR/functions.sh"
-LIB_TEMPLATES_PATH="$DIR/templates/s3.json"
+LIB_TEMPLATES_PATH="$DIR/templates/"
 echo "AWS CLI Wrapper Functions loaded into memory."
 
 declare -A valid_params
 
+grant-lf-permission-readonly() {
+
+    # Default template file path
+    local template_path="$LIB_TEMPLATES_PATH"
+    local template_file="lakeformation/permission-readonly.json"
+
+    # Extract parameters using your CLI library
+    user_params=$(fetch_user_params "$@")
+    valid_params=$(filter_params "$user_params" "p=principal c=catalog-id" "p=profile r=region")
+
+    # Global CLI parameters
+    profile_selection=$(get_kv_pair "p=profile")
+    region=$(get_param_value_or_default "r=region" "us-west-1")
+
+    # Example boolean parameter
+    # dry_run=$(get_kv_pair "dry-run=boolean")
+
+    # Command specific parameters
+    catalog_id=$(get_param_value "c=catalog-id")
+    principal=$(get_param_value "p=principal")
+
+    # Bind parameters to JSON template    
+    json_config=$(replace_json_values "${template_path}${template_file}" CatalogId="$catalog_id" Principal="$principal" Region="$region")
+
+    # Invoke the AWS CLI command with the JSON config
+    invoke_cli_command "aws lakeformation grant-permissions" "--cli-input-json '$json_config' $profile_selection"
+}
+
 create-s3-bucket-using-internal-json() {
 
     # Default template file path
-    local template_file="$LIB_TEMPLATES_PATH"
-    local bucket_name=""
+    local template_path="$LIB_TEMPLATES_PATH"
+    local template_file="s3.json"
     
     # Extract parameters using your CLI library
     user_params=$(fetch_user_params "$@")
@@ -20,7 +48,7 @@ create-s3-bucket-using-internal-json() {
     region=$(get_param_value_or_default "r=region" "us-west-1")
     dry_run=$(get_kv_pair "dry-run=boolean")
 
-    json_config=$(replace_json_values "$template_file" BucketName="$bucket_name" Region="$region")
+    json_config=$(replace_json_values "${template_path}${template_file}" BucketName="$bucket_name" Region="$region")
     invoke_cli_command "aws s3api create-bucket" "--cli-input-json '$json_config' $profile_selection"
 }
 
