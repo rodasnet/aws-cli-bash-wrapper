@@ -5,7 +5,7 @@ echo "AWS CLI Wrapper Functions loaded into memory."
 
 declare -A valid_params
 
-create-s3-bucket-using-json() {
+create-s3-bucket-using-internal-json() {
 
     # Default template file path
     local template_file="$LIB_TEMPLATES_PATH"
@@ -20,31 +20,7 @@ create-s3-bucket-using-json() {
     region=$(get_param_value_or_default "r=region" "us-west-1")
     dry_run=$(get_kv_pair "dry-run=boolean")
 
-    # template_file=$(get_param_value_or_default "t=template-file")
-
-    # Validate template file existence
-    # if [[ ! -f "$template_file" ]]; then
-    #     echo "Error: JSON template file '$template_file' not found." >&2
-    #     return 1
-    # fi
-
-    # replace_json_values "$template_file" BucketName="$bucket_name" Region="$region"# Works!!
-
     json_config=$(replace_json_values "$template_file" BucketName="$bucket_name" Region="$region")
-    
-    # Generate final JSON input
-    # resolved_json=$(replace_json_values "$template_file" BucketName="$bucket_name")
-
-#    echo "Bucket Name: $bucket_name"
-#    echo "Template File: $template_file"
-
-
-    # # Execute AWS CLI command
-    # aws s3api create-bucket --cli-input-json "$resolved_json" && \
-    # echo "S3 bucket '$bucket_name' created successfully!" || \
-    # echo "Error: Failed to create S3 bucket '$bucket_name'." >&2
-   
-    # Example CLI commad: aws s3api create-bucket --cli-input-json '{"Bucket": "ohbabyilikeitraw", "CreateBucketConfiguration": {"LocationConstraint": "us-west-2"}}'
     invoke_cli_command "aws s3api create-bucket" "--cli-input-json '$json_config' $profile_selection"
 }
 
