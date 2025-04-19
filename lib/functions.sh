@@ -10,8 +10,8 @@ invoke_cli_command() {
     fi
 
     # Execute the command with parameters
-    # eval "$command $params"
-    echo "$command $params"
+    eval "$command $params"
+    # echo "$command $params"
 }
 
 get_param_value() {

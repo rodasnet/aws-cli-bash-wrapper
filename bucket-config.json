@@ -1,0 +1,6 @@
+{
+    "Bucket": "bucket-00989",
+    "CreateBucketConfiguration": {
+        "LocationConstraint": "us-west-2"
+    }
+}

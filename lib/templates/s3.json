@@ -1,6 +1,6 @@
 {
     "Bucket": "{{BucketName}}",
     "CreateBucketConfiguration": {
-      "LocationConstraint": "us-west-1"
+      "LocationConstraint": "{{Region}}"
     }
   }
