@@ -5,6 +5,44 @@ echo "AWS CLI Wrapper Functions loaded into memory."
 
 declare -A valid_params
 
+grant-lf-permission() {
+    # Default template file path
+    local template_path="$LIB_TEMPLATES_PATH"
+    local template_file=""
+
+    # Extract parameters using your CLI library
+    user_params=$(fetch_user_params "$@")
+    valid_params=$(filter_params "$user_params" "i=principal c=catalog-id" "p=profile r=region writer=boolean reader=boolean manager=boolean admin=boolean")
+
+    # Determine the appropriate permission level
+    if [[ -n "$(get_kv_pair 'writer=boolean')" ]]; then
+        template_file="lakeformation/permission-writer.json"
+    elif [[ -n "$(get_kv_pair 'reader=boolean')" ]]; then
+        template_file="lakeformation/permission-readonly.json"
+    elif [[ -n "$(get_kv_pair 'manager=boolean')" ]]; then
+        template_file="lakeformation/permission-manager.json"
+    elif [[ -n "$(get_kv_pair 'admin=boolean')" ]]; then
+        template_file="lakeformation/permission-admin.json"
+    else
+        echo "Error: You must provide one of the following flags: --writer, --reader, --manager, or --admin." >&2
+        return 1
+    fi
+
+    # Global CLI parameters
+    profile_selection=$(get_kv_pair "p=profile")
+    region=$(get_param_value_or_default "r=region" "us-west-1")
+
+    # Command specific parameters
+    catalog_id=$(get_param_value "c=catalog-id")
+    principal=$(get_param_value "i=principal")
+
+    # Bind parameters to JSON template    
+    json_config=$(replace_json_values "${template_path}${template_file}" CatalogId="$catalog_id" Principal="$principal" Region="$region")
+
+    # Invoke the AWS CLI command with the JSON config
+    invoke_cli_command "aws lakeformation grant-permissions" "--cli-input-json '$json_config' $profile_selection"
+}
+
 grant-lf-permission-readonly() {
 
     # Default template file path
