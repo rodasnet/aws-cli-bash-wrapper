@@ -17,10 +17,9 @@
         }
     },
     "Permissions": [
-        "WRITE",
-        "INSERT"   
+        "MANAGER"
     ],
     "PermissionsWithGrantOption": [
-        "WRITE"
+        "MANAGER"
     ]
 }

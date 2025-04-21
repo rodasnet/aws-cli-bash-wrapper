@@ -17,9 +17,9 @@
         }
     },
     "Permissions": [
-        "ALL"
+        "READ"
     ],
     "PermissionsWithGrantOption": [
-        "ALL"
+        "READ"
     ]
 }
